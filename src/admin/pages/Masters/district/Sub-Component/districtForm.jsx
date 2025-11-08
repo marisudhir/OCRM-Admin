@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import useDistrictController from '../districtContoller';
 
 const DistrictForm = ({
@@ -8,7 +8,9 @@ const DistrictForm = ({
   states = [],
   loading
 }) => {
-  const { createDistrict, updateDistrict, deleteDistrict } = useDistrictController();
+  const { createDistrict, 
+          updateDistrict, 
+          deleteDistrict } = useDistrictController();
 
   const [formData, setFormData] = useState({
     cDistrict_name: '',
@@ -136,8 +138,8 @@ const DistrictForm = ({
             required
             disabled={loading || states.length === 0}
           >
-            <option value="">
-              {states.length === 0 ? 'No states available' : 'Select Country'}
+            <option value="" disabled>
+              {states.length === 0 ? 'No states available' : 'Select  State '}
             </option>
             {states.map(states => (
               <option

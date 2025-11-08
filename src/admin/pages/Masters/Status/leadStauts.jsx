@@ -4,9 +4,10 @@ import { useLeadStatusController } from './leadStatusController'; // Assuming th
 import formatDate from '../../../utils/formatDate';
 
 const LeadStatus = ({company=''} ) => {
+
   // Custom hooks for CRUD operations
   const { leadStatus, fetchLeadStatus, loading, error } = useLeadStatusController();
-
+   
   // State for filtering by company
   const [selectedCompany, setSelectedCompany] = useState(company);
   // State for form visibility
@@ -16,11 +17,6 @@ const LeadStatus = ({company=''} ) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10); // Adjust items per page as needed
 
-  // Fetch data on component mount
-  useEffect(() => {
-    fetchLeadStatus();
-    console.log("Props Data Fetched:", company);
-  }, []); // Dependency array
 
   // Generate unique list of companies
   const companies = useMemo(() => {
@@ -43,7 +39,7 @@ const LeadStatus = ({company=''} ) => {
   const totalPages = Math.ceil(filteredLeadStatus.length / itemsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
+  
   // Reset page to 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
@@ -65,6 +61,12 @@ const LeadStatus = ({company=''} ) => {
       </div>
     );
   }
+
+
+  //call the lead status 
+  useEffect(()=>{
+    fetchLeadStatus()
+  },[])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-blue-50 p-6 sm:p-8 font-sans antialiased">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import * as leadServiceModel from './leadServiceModel';
 
 export const useServices = () => {
@@ -7,12 +7,12 @@ export const useServices = () => {
   const [error, setError] = useState(null); // Optional: Error state
 
   // Fetch all lead service
-  const fetchLeadServices = async () => {
+  const fetchLeadServices = async (companyId) => {
     setLoading(true);
     try {
-      const data = await leadServiceModel.getAllLeadServices();
+      const data = await leadServiceModel.getAllLeadServicesByCompanyId(companyId);
       console.log("The lead services are:", data)
-      setLeadServices(data.data);
+      setLeadServices(data);
       setLoading(false)
     } catch (err) {
       console.error('Failed to fetch lead services:', err);
@@ -34,15 +34,12 @@ export const useServices = () => {
     }
   };
 
-  useEffect(() => {
-    fetchLeadServices();
-  }, []);
 
   return {
     leadServices,
     loading,
     createLeadServices,
-    fetchLeadServices, // for component reload once create API hits
-    error, // Optional: expose to show in UI
+    fetchLeadServices, 
+    error, 
   };
 };

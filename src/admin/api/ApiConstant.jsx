@@ -59,6 +59,7 @@ export const ENDPOINTS = {
   //STORAGE  DETAILS  API ENDPOINT 
   GET_STORAGE_DETAILS:`${BASE_URL}/fileSizeTracking`,
   COMPANY_LEAD_LOST_REASON : `${BASE_URL}/lead-lostreason`,
-  CREATE_LEAD_LOST_REASON:`${BASE_URL}/lead-lostreason` 
+  CREATE_LEAD_LOST_REASON:`${BASE_URL}/lead-lostreason`,
+  LEAD_SERVICE:`${BASE_URL}/lead-service`
 };
 

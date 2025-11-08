@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCompanyController } from './companyController';
 import CompanyForm from './companyForm';
 import { Link } from 'react-router-dom';

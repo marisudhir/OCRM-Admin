@@ -29,14 +29,11 @@ export const useLeadStatusController = () => {
     }
   };
 
-  useEffect(() => {
-    fetchLeadStatus();
-  }, []);
-
+ 
   return {
     leadStatus,
     createLeadStatus,
     fetchLeadStatus,
-    error, // Optional: expose to show in UI
+    error, 
   };
 };

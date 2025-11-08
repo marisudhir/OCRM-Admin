@@ -51,7 +51,7 @@ export const useCompanyController = () => {
 
   const fetchAuditLogs = async (company_id) => {
     try {
-      const data = await companyModel.getAuditLogs();
+      const data = await companyModel.getAuditLogs(company_id);
       return data;
     } catch (err) {
       console.error('Failed to fetch company data:', err);
@@ -116,7 +116,7 @@ const createCompany = async (data) => {
             
             // Optional direct fields, cast/checked as needed
             cpincode: data.cpincode ? parseInt(data.cpincode) : null,
-            cLogo_link: data.cLogo_link || 'https://xcodefix.com/logo.png', // Fallback value
+            cLogo_link: data.cLogo_link || "", // Fallback value
             cPan_no: data.cPan_no || null,
             industry: data.industry || null,
             cemail_address: data.cemail_address || null,
@@ -164,7 +164,7 @@ const createCompany = async (data) => {
 
         // --- 3. Call the Model Function ---
         const res = await companyModel.addNewCompany(payload);
-
+   
         console.log("Company created with ID:", res.data.iCompany_id);
         return true;
 
@@ -195,6 +195,10 @@ const createCompany = async (data) => {
     try {
       console.log("Creating  user with data:", data);
       const res = await companyModel.addAdminUser(data);
+      
+
+    //  await companyModel.getUsersByCompanyId (data.iCompany_id);
+
       console.log("The response is :", res);
       return true;
     } catch (err) {

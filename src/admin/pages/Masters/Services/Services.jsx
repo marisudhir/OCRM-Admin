@@ -4,30 +4,23 @@ import formatDate from '../../../utils/formatDate';
 import { useServices } from './useServices';
 import ServiceForm from './Sub-Components/ServiceForm';
 
-const LeadServices = ({company = {}}) => {
+const LeadServices = ({ company = {} }) => {
   // Custom hooks for CRUD operations
-  const {  createLeadServices, fetchLeadServices,loading,  leadServices, error} = useServices(); 
-console.log("The company data are:", company);
+  const { createLeadServices, fetchLeadServices, loading, leadServices, error } = useServices();
+  console.log("The company data are:", company);
   // State to set the company values from the lead status list.
   const [selectedCompany, setSelectedCompany] = useState(company?.iCompany_id);
   // State to control the form visibility
   const [showForm, setShowForm] = useState(false);
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10); // You can adjust items per page here
 
   // Fetch data on component mount
   useEffect(() => {
-    fetchLeadServices();
+    fetchLeadServices(company?.iCompany_id);
   }, []); // Dependency array to prevent infinite loop
-
-  // Generate a unique list of companies from the lead potential response
-  // Memoize to re-calculate only when leadPotential changes
-//   const companies = useMemo(() => {
-//     if (!leadServices || leadServices.length === 0) return [];
-//     return [...new Set(leadServices.map(service => service.company?.cCompany_name || "Unknown Company"))];
-//   }, [leadServices]);
 
   // Filter the data based on the dropdown menu
   // Memoize to re-calculate only when leadPotential or selectedCompany changes
@@ -39,16 +32,16 @@ console.log("The company data are:", company);
 
     return selectedCompany
       ? leadServices.filter(
-          (service) => service?.icompany_id === Number(selectedCompany)
-        )
+        (service) => service?.icompany_id === Number(selectedCompany)
+      )
       : leadServices;
   }, [leadServices, selectedCompany]);
 
 
-  
+
 
   // Pagination Logic
-  
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredLeadServices.slice(indexOfFirstItem, indexOfLastItem);
@@ -86,7 +79,7 @@ console.log("The company data are:", company);
         </h1>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-end items-center mb-6">
-       
+
 
           {/* Add Button */}
           <button
@@ -120,7 +113,7 @@ console.log("The company data are:", company);
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Company Id
                 </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Created By
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -179,11 +172,10 @@ console.log("The company data are:", company);
               <button
                 key={number + 1}
                 onClick={() => paginate(number + 1)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  currentPage === number + 1
+                className={`px-4 py-2 rounded-lg transition-colors ${currentPage === number + 1
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                  }`}
               >
                 {number + 1}
               </button>

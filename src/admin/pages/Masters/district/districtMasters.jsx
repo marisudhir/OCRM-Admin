@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { getAllState } from '../../Masters/States/stateModel';
 import useDistrictController from './districtContoller';
 import DistrictForm from '../district/Sub-Component/districtForm';
-import formatDate from '../../../utils/formatDate';
 
 // Custom Confirmation Modal component to replace window.confirm
 const ConfirmationModal = ({ isOpen, onConfirm, onCancel, message }) => {
@@ -60,7 +59,7 @@ const DistrictMaster = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch states and districts on component mount
-  useEffect(() => {
+
     const fetchStates = async () => {
       setStatesLoading(true);
       setStatesError(null);
@@ -75,7 +74,7 @@ const DistrictMaster = () => {
       }
     };
 
-    fetchStates();
+    useEffect(() => {
     fetchDistrict();
   }, [fetchDistrict]);
 
@@ -95,6 +94,7 @@ const DistrictMaster = () => {
   // Handler to open the form for adding a new district
   const handleAdd = () => {
     setCurrentDistrict(null);
+    fetchStates();
     setShowForm(true);
   };
 

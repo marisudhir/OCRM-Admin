@@ -19,7 +19,7 @@ import EditDocumentIcon from "@mui/icons-material/EditDocument";
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import {
   Chart as ChartJS,
@@ -97,7 +97,7 @@ function a11yProps(index) {
 }
 
 const MasterDataPanel = ({ companyData }) => {
-  const [selectedComponent, setSelectedComponent] = useState(null);  
+  const [selectedComponent, setSelectedComponent] = useState(null);
   const cardData = [
     {
       id: 1,
@@ -176,7 +176,7 @@ const MasterDataPanel = ({ companyData }) => {
       icon: "/icons/industrial-park.svg",
       component: "proposal-sent-mode",
     },
-     {
+    {
       id: 12,
       title: "Lead Lost Reason",
       description: "Lead lost resaon is for adding the lost reason of the lead ",
@@ -185,7 +185,7 @@ const MasterDataPanel = ({ companyData }) => {
     },
   ];
 
-   const renderComponent = () => {
+  const renderComponent = () => {
     console.log("Selected company:", companyData?.cCompany_name); // Added optional chaining
     switch (selectedComponent) {
       case "LeadStatus":
@@ -197,7 +197,7 @@ const MasterDataPanel = ({ companyData }) => {
       case "LeadIndustry":
         return <LeadIndustry />;
       case 'district':
-        return <DistrictMaster/>;
+        return <DistrictMaster />;
       case 'country':
         return <CountryMaster />;
       case 'state':
@@ -205,13 +205,13 @@ const MasterDataPanel = ({ companyData }) => {
       case 'currency':
         return <CurrencyMaster />;
       case 'services':
-        return <LeadServices company={companyData}/>;
+        return <LeadServices company={companyData} />;
       case 'sub-service':
-        return <SubService company={companyData}/>;
+        return <SubService company={companyData} />;
       case 'proposal-sent-mode':
-        return <ProposalSentMode company={companyData}/>;  
-          case 'lead-lost-reason':
-        return <LeadLostReason company={companyData.iCompany_id}/>;  
+        return <ProposalSentMode company={companyData} />;
+      case 'lead-lost-reason':
+        return <LeadLostReason company={companyData.iCompany_id} />;
       default:
         return null;
     }
@@ -269,7 +269,6 @@ const CompanyProfile = () => {
     error,
     createUser,
     loading,
-    setUsersByCompany,
     fetchAdditionalData,
     currencies,
     bussiness,
@@ -277,11 +276,11 @@ const CompanyProfile = () => {
     storageDetailsController,
     storageDetails
   } = useCompanyController();
-  
+
   const { fetchAllCities, cities, fetchRoles, roles } = useSharedController();
   const { showToast } = useToast();
   const [showProfile, setShowProfile] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null); 
+  const [selectedUser, setSelectedUser] = useState(null);
 
 
   const [company, setCompany] = useState(null);
@@ -350,42 +349,42 @@ const CompanyProfile = () => {
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
-const handleOpenEditDialog = async (company) => {
-  // Fetch additional data needed for the edit form
-  await fetchAdditionalData(); // This should fetch cities, currencies, business types, plans
-  await fetchAllCities();
-  await fetchRoles(); // If needed for other parts
-  
-  setEditCompanyData({
-    iCompany_id: company?.iCompany_id,
-    cCompany_name: company?.cCompany_name || "",
-    iPhone_no: company?.iPhone_no || "",
-    cemail_address: company?.cemail_address || "",
-    cWebsite: company?.cWebsite || "",
-    cGst_no: company?.cGst_no || "",
-    icin_no: company?.icin_no || "",
-    cPan_no: company?.cPan_no || "",
-    industry: company?.industry || "",
-    fax_no: company?.fax_no || "",
-    iUser_no: company?.iUser_no || "",
-    caddress1: company?.caddress1 || "",
-    caddress2: company?.caddress2 || "",
-    caddress3: company?.caddress3 || "",
-    cpincode: company?.cpincode || "",
-    cLogo_link: company?.cLogo_link || "",
-    icity_id: company?.icity_id || "",
-    icurrency_id: company?.icurrency_id || "",
-    ibusiness_type: company?.ibusiness_type || "",
-    isubscription_plan: company?.isubscription_plan || "",
-    ireseller_id: company?.ireseller_id || "",
-    city: company?.city || null,
-    currency: company?.currency || null,
-    business_type: company?.business_type || null,
-    subscription_plan: company?.subscription_plan || null
-  });
-  
-  setOpenEditDialog(true);
-};
+  const handleOpenEditDialog = async (company) => {
+    // Fetch additional data needed for the edit form
+    await fetchAdditionalData(); // This should fetch cities, currencies, business types, plans
+    await fetchAllCities();
+    await fetchRoles(); // If needed for other parts
+
+    setEditCompanyData({
+      iCompany_id: company?.iCompany_id,
+      cCompany_name: company?.cCompany_name || "",
+      iPhone_no: company?.iPhone_no || "",
+      cemail_address: company?.cemail_address || "",
+      cWebsite: company?.cWebsite || "",
+      cGst_no: company?.cGst_no || "",
+      icin_no: company?.icin_no || "",
+      cPan_no: company?.cPan_no || "",
+      industry: company?.industry || "",
+      fax_no: company?.fax_no || "",
+      iUser_no: company?.iUser_no || "",
+      caddress1: company?.caddress1 || "",
+      caddress2: company?.caddress2 || "",
+      caddress3: company?.caddress3 || "",
+      cpincode: company?.cpincode || "",
+      cLogo_link: company?.cLogo_link || "",
+      icity_id: company?.icity_id || "",
+      icurrency_id: company?.icurrency_id || "",
+      ibusiness_type: company?.ibusiness_type || "",
+      isubscription_plan: company?.isubscription_plan || "",
+      ireseller_id: company?.ireseller_id || "",
+      city: company?.city || null,
+      currency: company?.currency || null,
+      business_type: company?.business_type || null,
+      subscription_plan: company?.subscription_plan || null
+    });
+
+    setOpenEditDialog(true);
+  };
 
   const handleCloseEditDialog = () => {
     setOpenEditDialog(false);
@@ -395,8 +394,8 @@ const handleOpenEditDialog = async (company) => {
     const { name, value } = e.target;
 
     const intFields = [
-      "iUser_no", "iReseller_id", "iPhone_no", "ireseller_id", 
-      "isubscription_plan", "cpincode", "icity_id", "icurrency_id", 
+      "iUser_no", "iReseller_id", "iPhone_no", "ireseller_id",
+      "isubscription_plan", "cpincode", "icity_id", "icurrency_id",
       "ibusiness_type"
     ];
 
@@ -476,27 +475,17 @@ const handleOpenEditDialog = async (company) => {
       cPassword: userFormData.password,
       i_bPhone_no: userFormData.businessPhone,
       iphone_no: userFormData.personalPhone,
-      iCompany_id: company?.result.iCompany_id,
+      iCompany_id: company?.iCompany_id,
       irole_id: parseInt(userFormData.role),
     };
-    
+
     const res = await createUser(jsonData);
     console.log(res);
     res
       ? showToast("success", "User created successfully.")
       : showToast("error", error);
-    
-    setUsersByCompany((prev) => [...prev, {
-      cFull_name: userFormData.fullName,
-      cEmail: userFormData.email,
-      role: userFormData.role,
-      dCreate_dt: new Date(),
-      bactive: true,
-    }]);
-    
     setOpenUserCreateDialog(false);
   };
-
   const handleUserCreateDialog = () => {
     setOpenUserCreateDialog(false);
   };
@@ -507,8 +496,8 @@ const handleOpenEditDialog = async (company) => {
       try {
         const data = await fetchCompanyDataById(id);
         //call the controller function to get storage details 
-        const storageData= await storageDetailsController(id)
-        
+        const storageData = await storageDetailsController(id)
+
         console.log("The storage company data is:", storageData);
         console.table("The company data is:", data);
         setCompany(data);
@@ -539,7 +528,7 @@ const handleOpenEditDialog = async (company) => {
     currentPage * usersPerPage
   );
 
-   const fullAddressParts = [
+  const fullAddressParts = [
     company?.caddress1,
     company?.caddress2,
     company?.caddress3,
@@ -581,10 +570,9 @@ const handleOpenEditDialog = async (company) => {
                 <span
                   className={`
                     text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm uppercase
-                    ${
-                      company.bactive // Removed .result
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
+                    ${company.bactive // Removed .result
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
                     }
                   `}
                 >
@@ -684,7 +672,7 @@ const handleOpenEditDialog = async (company) => {
                 </p>
                 <p className="flex items-center gap-2">
                   <img src="/icons/cin.png" alt="CIN Number" width={30} height={30} />
-                  <span className="font-semibold">{company?.icin_no || "-"}</span> 
+                  <span className="font-semibold">{company?.icin_no || "-"}</span>
                 </p>
                 <p className="md:col-span-2 lg:col-span-1 flex items-start gap-2">
                   <LocationOnIcon className="text-gray-500 mt-1" />
@@ -700,161 +688,159 @@ const handleOpenEditDialog = async (company) => {
                 </p>
                 <p className="flex items-center gap-2">
                   <EditDocumentIcon className="text-gray-500" />
-                  <span className="font-semibold">{company?.totalLeads || "-"}</span> 
+                  <span className="font-semibold">{company?.totalLeads || "-"}</span>
                 </p>
               </div>
             </div>
           </div>
-{console.log("The company daaaaaaattaaaa is :", company)}
-    <PieChart
-      series={[
-        {
-          data: [
-            { id: 0, value: storageDetails.percentageUsed, label: `Storage Used : ${storageDetails.storageUsed}` },
-            { id: 1, value: storageDetails.percentageAvailable, label: `Available Storage : ${storageDetails.storageAlloted}` },
-          ],
-        },
-      ]}
-      width={200}
-      height={200}
-    />
-  
+          {console.log("The company daaaaaaattaaaa is :", company)}
+          <PieChart
+            series={[
+              {
+                data: [
+                  { id: 0, value: storageDetails.percentageUsed, label: `Storage Used : ${storageDetails.storageUsed}` },
+                  { id: 1, value: storageDetails.percentageAvailable, label: `Available Storage : ${storageDetails.storageAlloted}` },
+                ],
+              },
+            ]}
+            width={200}
+            height={200}
+          />
+
 
 
         </CustomTabPanel>
 
         {/* General Settings Tab */}
         <CustomTabPanel value={activeTab} index={1}>
-          <GeneralSettingsTab company = {company}/>
+          <GeneralSettingsTab company={company} />
         </CustomTabPanel>
 
         {/* Users Tab */}
         <CustomTabPanel value={activeTab} index={2}>
-          
+
           {error && <p className="text-red-500 mb-4">Error: {error}</p>}
 
 
-      <div className="p-6 h-screen bg-white overflow-y-auto">
-    {showProfile ? (
-      // 👉 PROFILE VIEW
-      <div>
-        {console.log('Selected User:', selectedUser)}
-        
-          <CompanyUser user={selectedUser} companyId={company?.iCompany_id}   setShowProfile={setShowProfile}  />
-      </div>
-    ) : (
-      // 👉 USER LIST VIEW
-      <div className="overflow-x-auto">
-        <div className="flex justify-end mb-4">
-            <button
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors duration-200 shadow-sm"
-              onClick={() => setOpenUserCreateDialog(true)}
-            >
-              + Create user
-            </button>
-          </div>
+          <div className="p-6 h-screen bg-white overflow-y-auto">
+            {showProfile ? (
+              // 👉 PROFILE VIEW
+              <div>
+                {console.log('Selected User:', selectedUser)}
 
-        {paginatedUsers.length > 0 ? (
-          <table className="min-w-full divide-y divide-gray-200 border border-gray-200 border-rounded-lg">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
-              </tr>
-            </thead>
+                <CompanyUser user={selectedUser} companyId={company?.iCompany_id} setShowProfile={setShowProfile} />
+              </div>
+            ) : (
+              // 👉 USER LIST VIEW
+              <div className="overflow-x-auto">
+                <div className="flex justify-end mb-4">
+                  <button
+                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors duration-200 shadow-sm"
+                    onClick={() => setOpenUserCreateDialog(true)}
+                  >
+                    + Create user
+                  </button>
+                </div>
 
-            <tbody className="bg-white divide-y divide-gray-200">
-              {paginatedUsers.map((user) => (
-                <tr
-                  key={user.iUser_id}
-                  className="cursor-pointer hover:bg-gray-100"
-                  onClick={() => {
-                    setSelectedUser(user); // Save clicked user
-                    setShowProfile(true);  // Switch to profile view
-                  }}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {user.cFull_name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.cEmail}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.role}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(user.dCreate_dt).toLocaleDateString("en-IN", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.bactive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                      }`}
+                {paginatedUsers.length > 0 ? (
+                  <table className="min-w-full divide-y divide-gray-200 border border-gray-200 border-rounded-lg">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
+                      </tr>
+                    </thead>
+
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {paginatedUsers.map((user) => (
+                        <tr
+                          key={user.iUser_id}
+                          className="cursor-pointer hover:bg-gray-100"
+                          onClick={() => {
+                            setSelectedUser(user); // Save clicked user
+                            setShowProfile(true);  // Switch to profile view
+                          }}
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {user.cFull_name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {user.cEmail}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {user.role}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(user.dCreate_dt).toLocaleDateString("en-IN", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.bactive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                                }`}
+                            >
+                              {user.bactive ? "Active" : "Deactivated"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            {/* Optional Action Button */}
+                            <button className="text-blue-600 hover:text-blue-800">⋮</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="p-6 text-center">
+                    <p className="text-red-500">No user data available for this company.</p>
+                  </div>
+                )}
+
+                {/* Pagination */}
+                <div className="flex justify-center mt-4 space-x-2">
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                  >
+                    Prev
+                  </button>
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`px-3 py-1 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
+                        }`}
                     >
-                      {user.bactive ? "Active" : "Deactivated"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {/* Optional Action Button */}
-                    <button className="text-blue-600 hover:text-blue-800">⋮</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <div className="p-6 text-center">
-            <p className="text-red-500">No user data available for this company.</p>
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-
-        {/* Pagination */}
-        <div className="flex justify-center mt-4 space-x-2">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-          >
-            Prev
-          </button>
-          {[...Array(totalPages)].map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentPage(i + 1)}
-              className={`px-3 py-1 rounded ${
-                currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-          <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      </div>
-    )}
-  </div>
         </CustomTabPanel>
 
-          {/* Masters Tab */}
+        {/* Masters Tab */}
         <CustomTabPanel value={activeTab} index={3}>
           <MasterDataPanel companyData={company} /> {/* Removed .result */}
         </CustomTabPanel>
 
-       {/* Audit Login Tab */}
+        {/* Audit Login Tab */}
         <CustomTabPanel value={activeTab} index={4}>
           <AuditLoginTab company_id={company?.iCompany_id} /> {/* Removed .result */}
         </CustomTabPanel>
@@ -881,23 +867,23 @@ const handleOpenEditDialog = async (company) => {
             <TextField label="Pincode" name="cpincode" type="number" value={editCompanyData?.cpincode || ""} onChange={handleEditFormChange} fullWidth variant="outlined" />
             <TextField label="Logo URL" name="cLogo_link" value={editCompanyData?.cLogo_link || ""} onChange={handleEditFormChange} fullWidth variant="outlined" />
 
-            <Autocomplete options={cities} getOptionLabel={(option) => option.cCity_name || ""} value={editCompanyData?.city || null} onChange={(event, newValue) => { setEditCompanyData((prev) => ({ ...prev, city: newValue, icity_id: newValue ? newValue.icity_id : "" })); }} isOptionEqualToValue={(option, value) => option.icity_id === value?.icity_id} renderInput={(params) => ( <TextField {...params} label={<span>City <span className="text-red-500">*</span></span>} fullWidth variant="outlined" error={!!errors.icity_id} helperText={errors.icity_id} /> )} />
+            <Autocomplete options={cities} getOptionLabel={(option) => option.cCity_name || ""} value={editCompanyData?.city || null} onChange={(event, newValue) => { setEditCompanyData((prev) => ({ ...prev, city: newValue, icity_id: newValue ? newValue.icity_id : "" })); }} isOptionEqualToValue={(option, value) => option.icity_id === value?.icity_id} renderInput={(params) => (<TextField {...params} label={<span>City <span className="text-red-500">*</span></span>} fullWidth variant="outlined" error={!!errors.icity_id} helperText={errors.icity_id} />)} />
 
-            <Autocomplete options={currencies || []} getOptionLabel={(option) => option.currency_code || ""} value={editCompanyData?.currency || null} onChange={(event, newValue) => { setEditCompanyData((prev) => ({ ...prev, currency: newValue, icurrency_id: newValue ? newValue.icurrency_id : "" })); }} isOptionEqualToValue={(option, value) => option.icurrency_id === value?.icurrency_id} renderInput={(params) => ( <TextField {...params} label="Currency" fullWidth variant="outlined" /> )} />
+            <Autocomplete options={currencies || []} getOptionLabel={(option) => option.currency_code || ""} value={editCompanyData?.currency || null} onChange={(event, newValue) => { setEditCompanyData((prev) => ({ ...prev, currency: newValue, icurrency_id: newValue ? newValue.icurrency_id : "" })); }} isOptionEqualToValue={(option, value) => option.icurrency_id === value?.icurrency_id} renderInput={(params) => (<TextField {...params} label="Currency" fullWidth variant="outlined" />)} />
 
-            <Autocomplete options={bussiness || []} getOptionLabel={(option) => option.name || ""} value={editCompanyData?.business_type || null} onChange={(event, newValue) => { setEditCompanyData((prev) => ({ ...prev, business_type: newValue, ibusiness_type: newValue ? newValue.id : "" })); }} isOptionEqualToValue={(option, value) => option.id === value?.id} renderInput={(params) => ( <TextField {...params} label="Business Type" fullWidth variant="outlined" /> )} />
+            <Autocomplete options={bussiness || []} getOptionLabel={(option) => option.name || ""} value={editCompanyData?.business_type || null} onChange={(event, newValue) => { setEditCompanyData((prev) => ({ ...prev, business_type: newValue, ibusiness_type: newValue ? newValue.id : "" })); }} isOptionEqualToValue={(option, value) => option.id === value?.id} renderInput={(params) => (<TextField {...params} label="Business Type" fullWidth variant="outlined" />)} />
 
-            <Autocomplete options={plan || []} getOptionLabel={(option) => option.plan_name || ""} value={editCompanyData?.subscription_plan || null} onChange={(event, newValue) => { setEditCompanyData((prev) => ({ ...prev, subscription_plan: newValue, isubscription_plan: newValue ? newValue.plan_id : "" })); }} isOptionEqualToValue={(option, value) => option.plan_id === value?.plan_id} renderInput={(params) => ( <TextField {...params} label="Subscription Plan" fullWidth variant="outlined" /> )} />
+            <Autocomplete options={plan || []} getOptionLabel={(option) => option.plan_name || ""} value={editCompanyData?.subscription_plan || null} onChange={(event, newValue) => { setEditCompanyData((prev) => ({ ...prev, subscription_plan: newValue, isubscription_plan: newValue ? newValue.plan_id : "" })); }} isOptionEqualToValue={(option, value) => option.plan_id === value?.plan_id} renderInput={(params) => (<TextField {...params} label="Subscription Plan" fullWidth variant="outlined" />)} />
 
-<TextField
-  label="Reseller ID"
-  name="ireseller_id"
-  type="number"
-  value={editCompanyData?.ireseller_id || ""}
-  onChange={handleEditFormChange}
-  fullWidth
-  variant="outlined"
-/>
+            <TextField
+              label="Reseller ID"
+              name="ireseller_id"
+              type="number"
+              value={editCompanyData?.ireseller_id || ""}
+              onChange={handleEditFormChange}
+              fullWidth
+              variant="outlined"
+            />
           </div>
         </DialogContent>
         <DialogActions className="p-4">
@@ -957,26 +943,24 @@ const handleOpenEditDialog = async (company) => {
                   <label htmlFor="role" className="block text-sm font-medium text-gray-700">Role</label>
                   <select id="role" value={userFormData.role} onChange={handleChange} className="w-full px-3 py-2 border rounded-lg shadow-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
                     <option value="" disabled className="text-gray-400">Choose role</option>
-                    {roles.map((role) => ( <option key={role.irole_id} value={role.irole_id}>{role.cRole_name}</option> ))}
+                    {roles.map((role) => (<option key={role.irole_id} value={role.irole_id}>{role.cRole_name}</option>))}
                   </select>
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="reporting" className="block text-sm font-medium text-gray-700">Reports to</label>
-                  <select id="reporting" value={userFormData.reporting} onChange={handleChange} 
-                  className="w-full px-3 py-2 border rounded-lg shadow-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
+                  <select id="reporting" value={userFormData.reporting} onChange={handleChange}
+                    className="w-full px-3 py-2 border rounded-lg shadow-sm bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
                     {!usersByCompany ? (
                       <option value="" disabled className="text-gray-400">No users found</option>
-                    ) :(
+                    ) : (
                       <>
-                    <option value="" disabled className="text-gray-400">Choose reporting</option>
-                    {usersByCompany.map((user) => ( <option key={user.iUser_id} value={user.iUser_id}>{user.cFull_name}</option> 
-                    )
-                  
-                  )}
-                  </>
-                  )}
-      
-                    
+                        <option value="" disabled className="text-gray-400">Choose reporting</option>
+                        {usersByCompany.map((user) => (<option key={user.iUser_id} value={user.iUser_id}>{user.cFull_name}</option>
+                        )
+
+                        )}
+                      </>
+                    )}
                   </select>
                 </div>
               </div>
@@ -988,9 +972,6 @@ const handleOpenEditDialog = async (company) => {
           </div>
         </div>
       )}
-
-
-
 
       {/* User Actions Menu */}
       <Menu id="user-actions-menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>

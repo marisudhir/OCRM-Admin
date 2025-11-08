@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import {  useState } from 'react';
 import * as industryModel from './industryModel';
 
 export const useIndustryController = () => {
@@ -29,10 +29,7 @@ export const useIndustryController = () => {
     }
   };
 
-  useEffect(() => {
-    fetchIndustryData();
-  }, []);
-
+  
   return {
     industries,
     createIndustry,

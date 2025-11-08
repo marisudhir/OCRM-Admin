@@ -4,19 +4,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import { TextField, InputAdornment } from '@mui/material';
 import { useCompanyController } from './companyController';
 
-// Dummy data for audit logs
-const dummyAuditLogs = [
-  { id: 1, userName: 'Alice Johnson', loginTime: '2024-07-18T10:00:00Z', ipAddress: '192.168.1.101', status: 'Success' },
-  { id: 2, userName: 'Bob Williams', loginTime: '2024-07-18T10:05:00Z', ipAddress: '192.168.1.102', status: 'Failed' },
-  { id: 3, userName: 'Alice Johnson', loginTime: '2024-07-18T11:15:00Z', ipAddress: '192.168.1.101', status: 'Success' },
-  { id: 4, userName: 'Charlie Brown', loginTime: '2024-07-18T11:30:00Z', ipAddress: '192.168.1.103', status: 'Success' },
-  { id: 5, userName: 'Bob Williams', loginTime: '2024-07-18T12:00:00Z', ipAddress: '192.168.1.102', status: 'Failed' },
-  { id: 6, userName: 'Diana Prince', loginTime: '2024-07-18T13:40:00Z', ipAddress: '192.168.1.104', status: 'Success' },
-  { id: 7, userName: 'Alice Johnson', loginTime: '2024-07-18T14:00:00Z', ipAddress: '192.168.1.101', status: 'Success' },
-  { id: 8, userName: 'Charlie Brown', loginTime: '2024-07-18T15:20:00Z', ipAddress: '192.168.1.103', status: 'Success' },
-];
-
 const AuditLoginTab = ({company_id}) => {
+  console.log("Company Id in audit log : ",company_id)
   const [searchTerm, setSearchTerm] = useState(''); 
   const [auditLogs, setAuditLogs] = useState([]); // Replace with actual data fetching
   const [currentPage, setCurrentPage] = useState(1);

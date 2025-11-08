@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { getAllCountry } from '../../Masters/country/countryModel';
 import useStateController from './stateController';
 import StateForm from './Sub-Component/stateFrom';
-import formatDate from '../../../utils/formatDate';
 
 // Custom Confirmation Modal component to replace window.confirm
 const ConfirmationModal = ({ isOpen, onConfirm, onCancel, message }) => {
@@ -60,7 +59,6 @@ const StateMaster = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch countries and states on component mount
-  useEffect(() => {
     const fetchCountries = async () => {
       setCountriesLoading(true);
       setCountriesError(null);
@@ -72,10 +70,9 @@ const StateMaster = () => {
         setCountries([]);
       } finally {
         setCountriesLoading(false);
-      }
     };
-
-    fetchCountries();
+  }
+    useEffect(()=>{
     fetchStates();
   }, [fetchStates]);
   
@@ -181,7 +178,7 @@ const StateMaster = () => {
         <div className="flex justify-between items-center mb-6 border-b pb-4">
           <h1 className="text-3xl font-extrabold text-gray-800">State Master</h1>
           <button
-            onClick={handleAdd}
+            onClick={()=>{handleAdd(),fetchCountries()}}
             className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors disabled:opacity-50"
             disabled={loading}
           >

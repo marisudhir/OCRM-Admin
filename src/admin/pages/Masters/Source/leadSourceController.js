@@ -29,9 +29,7 @@ export const useLeadSourceController = () => {
     }
   };
 
-  useEffect(() => {
-    fetchLeadSource();
-  }, []);
+
 
   return {
     leadSource,

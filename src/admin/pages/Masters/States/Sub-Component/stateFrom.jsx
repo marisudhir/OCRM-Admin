@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import useStateController from '../../States/stateController';
 
 const StateForm = ({
@@ -42,6 +42,7 @@ const StateForm = ({
   };
 
   const handleChange = (e) => {
+    
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,

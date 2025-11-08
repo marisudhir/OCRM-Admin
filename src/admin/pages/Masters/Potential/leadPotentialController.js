@@ -29,14 +29,11 @@ export const useLeadPotentialController = () => {
     }
   };
 
-  useEffect(() => {
-    fetchLeadPotential();
-  }, []);
 
   return {
     leadPotential,
     createLeadPotential,
-    fetchLeadPotential, // for component reload once create API hits
-    error, // Optional: expose to show in UI
+    fetchLeadPotential, 
+    error, 
   };
 };

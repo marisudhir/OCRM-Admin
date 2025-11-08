@@ -17,3 +17,8 @@ export const updateWithQueryParams = (queryParams, endpoint, data) => {
 export const getByIdAndType = (id,type, endpoint) => API.get(`${endpoint}/${id}/${type}`);
 //EDIT API FUNCTION ONLY BY REQUEST BODY 
 export const editWithReqBody = ( endpoint,requestBody) => API.put(`${endpoint}`,requestBody);
+//GET METHOD WITH QUERY PARAM 
+export const getWithQueryParam=(endpoint,reqQuery)=> {
+  const queryString = new URLSearchParams(reqQuery).toString();
+  API.get(`${endpoint}?${queryString}`)
+}
