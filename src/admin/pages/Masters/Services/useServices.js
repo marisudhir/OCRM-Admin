@@ -3,15 +3,14 @@ import * as leadServiceModel from './leadServiceModel';
 
 export const useServices = () => {
   const [leadServices, setLeadServices] = useState([]);
-  const [loading , setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null); // Optional: Error state
 
   // Fetch all lead service
-  const fetchLeadServices = async (companyId) => {
+  const fetchLeadServices = async (companyId,additionalDetails) => {
     setLoading(true);
     try {
-      const data = await leadServiceModel.getAllLeadServicesByCompanyId(companyId);
-      console.log("The lead services are:", data)
+      const data = await leadServiceModel.getAllLeadServicesByCompanyId({companyId:companyId,additionalDetails:true});
       setLeadServices(data);
       setLoading(false)
     } catch (err) {
@@ -39,7 +38,7 @@ export const useServices = () => {
     leadServices,
     loading,
     createLeadServices,
-    fetchLeadServices, 
-    error, 
+    fetchLeadServices,
+    error,
   };
 };

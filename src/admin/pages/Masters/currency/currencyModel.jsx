@@ -1,10 +1,10 @@
 import * as ApiHelper from '../../../api/ApiHelper';
 import { ENDPOINTS } from '../../../api/ApiConstant';
 
-export const getAllCurrency = async () => {
+export const getAllCurrency = async (adminSide) => {
   try {
-    const response = await ApiHelper.getAll(ENDPOINTS.CURRENCY);
-    console.log('Raw Currency API Response:', response.data);
+    const response =  await  ApiHelper.getWithQueryParam(ENDPOINTS.CURRENCY,adminSide);
+    console.log('Raw Currency API Response:', response);
     return response.data.data.data;
   } catch (error) {
     console.error("Currency API Error:", error);

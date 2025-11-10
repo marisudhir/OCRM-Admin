@@ -31,10 +31,9 @@ const ConfirmationModal = ({ isOpen, onConfirm, onCancel, message }) => {
   );
 };
 
-
 const CurrencyMaster = () => {
   const {
-    currencies: rawCurrencies = [],
+    currencies: rawCurrencies,
     fetchCurrencies,
     createCurrency,
     updateCurrency,
@@ -44,6 +43,8 @@ const CurrencyMaster = () => {
   } = useCurrencyController();
 
 
+//log the currency here 
+console.log("currency: ",rawCurrencies)
   const [showForm, setShowForm] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -61,9 +62,9 @@ const CurrencyMaster = () => {
 
   const filteredCurrencies = Array.isArray(rawCurrencies)
     ? rawCurrencies.filter(currency =>
-        currency.country_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        currency.currency_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
         currency.currency_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        currency.currency_code.toLowerCase().includes(searchQuery.toLowerCase())
+        currency.symbol.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : [];
 

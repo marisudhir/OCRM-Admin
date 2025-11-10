@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react'; // Added useEffect and useMemo
+import { useState, useEffect, useMemo } from 'react'; // Added useEffect and useMemo
 // import LeadPotentialForm from '../../Masters/Potential/Sub-Components';
-import formatDate from '../../../utils/formatDate';
 import { useServices } from './useServices';
 import ServiceForm from './Sub-Components/ServiceForm';
 
 const LeadServices = ({ company = {} }) => {
   // Custom hooks for CRUD operations
   const { createLeadServices, fetchLeadServices, loading, leadServices, error } = useServices();
-  console.log("The company data are:", company);
+  console.log("Service array : ", leadServices);
   // State to set the company values from the lead status list.
   const [selectedCompany, setSelectedCompany] = useState(company?.iCompany_id);
   // State to control the form visibility
@@ -20,22 +19,22 @@ const LeadServices = ({ company = {} }) => {
   // Fetch data on component mount
   useEffect(() => {
     fetchLeadServices(company?.iCompany_id);
-  }, []); // Dependency array to prevent infinite loop
+  }, [company?.iCompany_id]); // Dependency array to prevent infinite loop
 
   // Filter the data based on the dropdown menu
   // Memoize to re-calculate only when leadPotential or selectedCompany changes
-  const filteredLeadServices = useMemo(() => {
+  // const filteredLeadServices = useMemo(() => {
 
-    if (!Array.isArray(leadServices)) {
-      return [];
-    }
+  //   if (!Array.isArray(leadServices)) {
+  //     return [];
+  //   }
 
-    return selectedCompany
-      ? leadServices.filter(
-        (service) => service?.icompany_id === Number(selectedCompany)
-      )
-      : leadServices;
-  }, [leadServices, selectedCompany]);
+  //   return selectedCompany
+  //     ? leadServices.filter(
+  //       (service) => service?.icompany_id === Number(selectedCompany)
+  //     )
+  //     : leadServices;
+  // }, [leadServices, selectedCompany]);
 
 
 
@@ -44,21 +43,21 @@ const LeadServices = ({ company = {} }) => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredLeadServices.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredLeadServices.length / itemsPerPage);
+  const currentItems = leadServices.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(leadServices.length / itemsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Reset page to 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCompany, filteredLeadServices.length]); // Added filteredLeadPotential.length as a dependency
+  }, [selectedCompany, leadServices.length]); // Added filteredLeadPotential.length as a dependency
 
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
-        <p className="text-gray-600 text-lg">Loading lead potential data...</p>
+        <p className="text-gray-600 text-lg">Loading lead service data...</p>
       </div>
     );
   }
@@ -100,18 +99,15 @@ const LeadServices = ({ company = {} }) => {
         )}
 
         {/* Lead Potential Table */}
-        <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
-          <table className="min-w-full divide-y divide-gray-200">
+        <div className="bg-white rounded-xl  shadow-md overflow-hidden border border-gray-100">
+          <table className="min-w-full divide-y  divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   S.No
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Status Name
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Company Id
+                  Service Name
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Created By
@@ -140,16 +136,12 @@ const LeadServices = ({ company = {} }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                       {service.cservice_name || "Unknown"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                      <span className="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
-                        {service.icompany_id || "Unknown Company"}
-                      </span>
-                    </td>
+                   
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {service.createdBy}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(service.dcreated_at) || "Unknown Date"}
+                      {service.createdAt || "Unknown Date"}
                     </td>
                   </tr>
                 ))

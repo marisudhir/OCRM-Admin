@@ -13,8 +13,9 @@ const useCurrencyController = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getAllCurrency();
+      const data = await getAllCurrency({adminSide:true});
       setCurrencies(data);
+      console.log("currency data : ",data)
     } catch (err) {
       console.error('Fetch currencies error:', err);
       setError(err);
