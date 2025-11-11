@@ -3,7 +3,7 @@ import * as leadStatusModel from './leadStatusModel';
 
 export const useLeadStatusController = () => {
   const [leadStatus, setLeadStatus] = useState([]);
-  const [error, setError] = useState(null); // Optional: Error state
+  const [error, setError] = useState(null); 
 
   // Fetch all lead statuses
   const fetchLeadStatus = async () => {
@@ -29,11 +29,11 @@ export const useLeadStatusController = () => {
     }
   };
 
- 
   return {
     leadStatus,
     createLeadStatus,
     fetchLeadStatus,
     error, 
   };
+  
 };

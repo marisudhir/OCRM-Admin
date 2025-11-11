@@ -16,7 +16,7 @@ const LeadServices = ({ company = {} }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10); // You can adjust items per page here
 
-  // Fetch data on component mount
+  // Fetch data on component mount 
   useEffect(() => {
     fetchLeadServices(company?.iCompany_id);
   }, [company?.iCompany_id]); // Dependency array to prevent infinite loop

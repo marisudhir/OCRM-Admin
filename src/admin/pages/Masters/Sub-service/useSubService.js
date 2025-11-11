@@ -1,47 +1,67 @@
-import { useEffect, useState } from 'react';
+import { useReducer, useCallback } from 'react';
 import * as subServiceModel from './subServiceModel';
 
+//initialstate (instead of using useState using useReducer hook for handling all related states together)
+const initialState = {
+  subService: [],
+  loading: false,
+  error: null
+}
+
+//reducer funtion 
+function reducer(state, action) {
+  switch (action.type) {
+    case 'FETCH_START':
+      return { ...state, loading: true, error: null };
+    case 'FETCH_SUCCESS':
+      return { ...state, loading: false, subService: action.payload, error: null };
+    case 'FETCH_FAILURE':
+      return { ...state, loading: false, subService: action.payload, error: null };
+    case 'ADD_SUCCESS':
+      return { ...state, subService: [action.payload, ...state.subService] };
+    case 'RESET_ERROR':
+      return { ...state, error: null };
+    default:
+      return state;
+  }
+}
+
+//fuction for fetching sub-service 
 export const useSubService = () => {
-  const [subService, setSubService] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null); // Optional: Error state
-
-  // Fetch all lead statuses
-  const fetchLeadSubService = async () => {
-    setLoading(true)
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const fetchLeadSubService = useCallback(async (companyId) => {
+    if (!companyId && companyId !== 0) return; //guard
+    dispatch({ type: 'FETCH_START' });
     try {
-      const data = await subServiceModel.getAllLeadSubService();
-      setSubService(data);
-      setLoading(false)
-    } catch (err) {
-      console.error('Failed to fetch lead sub service:', err);
-      setError(err.message || 'Something went wrong');
-      setLoading(false)
+      console.log("Fetched the sub-service API.")
+      const data = await subServiceModel.getAllLeadSubService(companyId);
+      //ensure it's always array 
+      dispatch({ type: 'FETCH_SUCCESS', payload: Array.isArray(data.data) ? data.data : [] })
+    } catch (e) {
+      dispatch({ type: 'FETCH_FAILURE', payload: e?.message || e || 'Failed to fetch' })
     }
-  };
-
-  // Create a new lead status
-  const createLeadSubService = async (formData) => {
+  }, []);
+  //create sub service using useCallback hook for prevent the fuction from unwanted re-renderring
+  const createLeadSubService = useCallback(async (formData) => {
     try {
-      await subServiceModel.addNewLeadSubService(formData);
-      await fetchLeadSubService();
+      const created = await subServiceModel.addNewLeadSubService(formData);
+      //if API returns created object, append it; otherwise, you can refetch 
+      if (created) dispatch({ type: 'ADD_SUCCESS', payload: created });
       return true;
-    } catch (err) {
-      console.error('Failed to create lead sub service:', err);
-      setError(err.message || 'Could not create lead potential');
+    } catch (e) {
+      dispatch({ type: 'FETCH_FAILURE', payload: e?.message || 'Could not create' });
       return false;
     }
-  };
+  }, [])
 
-  useEffect(() => {
-    fetchLeadSubService();
-  }, []);
-
+  //setting error 
+  const resetError = useCallback(() => dispatch({ type: 'RESET_ERROR' }), []);
+  console.log("The component render. ")
   return {
-    subService,
-    createLeadSubService,
-    fetchLeadSubService, // for component reload once create API hits
-    error, // Optional: expose to show in UI
-    loading
-  };
-};
+    ...state,
+    fetchLeadSubService, //stable function 
+    createLeadSubService, //stable function 
+    resetError
+  }
+}
+

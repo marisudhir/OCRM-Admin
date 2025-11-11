@@ -3,8 +3,8 @@ import * as ApiHelper from '../../../api/ApiHelper';
 import { ENDPOINTS } from '../../../api/ApiConstant';
 
 // to get all the companies.
-export const getAllProposalSentMode = async () => {
-  const res = await ApiHelper.getAll(ENDPOINTS.PROPOSAL_SENT_MODE);
+export const getAllProposalSentMode = async (companyId) => {
+  const res = await ApiHelper.getWithQueryParam(ENDPOINTS.PROPOSAL_SENT_MODE,{companyId:companyId});
   return res.data; 
 };
 

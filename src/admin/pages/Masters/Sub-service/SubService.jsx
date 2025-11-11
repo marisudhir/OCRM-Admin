@@ -1,53 +1,44 @@
-import React, { useState, useEffect, useMemo } from 'react'; // Added useEffect and useMemo
+import { useState, useEffect, useMemo } from 'react';
 import formatDate from '../../../utils/formatDate';
 import { useSubService } from './useSubService';
 
-const SubService = ({company= {}}) => {
+const SubService = ({ company = {} }) => {
+  console.log("company details are : ", company.iCompany_id)
   // Custom hooks for CRUD operations
   const { subService, fetchLeadSubService, loading, error } = useSubService(); // Assuming useLeadPotentialController provides loading and error states
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchLeadSubService(company.iCompany_id);
+  }, [ company?.iCompany_id]); // Dependency array to prevent infinite loop
+
 
   // State to set the company values from the lead status list.
-  const [selectedCompany, setSelectedCompany] = useState(company);
+  const [selectedCompany, setSelectedCompany] = useState(company?.iCompany_id ?? '');
   // State to control the form visibility
   const [showForm, setShowForm] = useState(false);
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10); // You can adjust items per page here
 
-  // Fetch data on component mount
-  useEffect(() => {
-    fetchLeadSubService();
-  }, []); // Dependency array to prevent infinite loop
 
-  // Generate a unique list of companies from the lead potential response
-  // Memoize to re-calculate only when leadPotential changes
-//   const companies = useMemo(() => {
-//     if (!subService || subService.length === 0) return [];
-//     return [...new Set(subService.map(sub => sub.company?.cCompany_name || "Unknown Company"))];
-//   }, [leadPotential]);
+
 
   // Filter the data based on the dropdown menu
   // Memoize to re-calculate only when leadPotential or selectedCompany changes
-  const filteredSubService = useMemo(() => {
-    if (!subService) return []; // Handle null/undefined leadPotential
-    return selectedCompany
-      ? subService.filter(sub => (sub.company?.cCompany_name || "Unknown Company") === selectedCompany)
-      : subService;
-  }, [subService, selectedCompany]);
 
   // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredSubService.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredSubService.length / itemsPerPage);
+  const currentItems = subService.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(subService.length / itemsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Reset page to 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCompany, filteredSubService.length]); // Added filteredLeadPotential.length as a dependency
+  }, [ subService.length]); // Added filteredLeadPotential.length as a dependency
 
 
   if (loading) {
@@ -70,13 +61,13 @@ const SubService = ({company= {}}) => {
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-blue-50 p-6 sm:p-8 font-sans antialiased">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-extrabold text-gray-800 mb-8 leading-tight">
-          Lead Potential
+          Lead Sub-service
         </h1>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-end items-center mb-6">
           {/* Dropdown Filter */}
           <div className="w-full sm:w-auto">
-           {/* <select
+            {/* <select
               value={selectedCompany}
               onChange={(e) => setSelectedCompany(e.target.value)}
               className="block w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg shadow-sm text-gray-700 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 cursor-pointer"
@@ -117,11 +108,9 @@ const SubService = ({company= {}}) => {
                   S.No
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Status Name
+                  Sub-Service 
                 </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Company
-                </th>
+                
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Created At
                 </th>
@@ -135,24 +124,20 @@ const SubService = ({company= {}}) => {
                   </td>
                 </tr>
               ) : (
-                currentItems.map((potential, index) => (
+                currentItems.map((subService, index) => (
                   <tr
-                    key={potential.ilead_potential_id || `potential-${indexOfFirstItem + index}`} // Using a stable ID or generated one
+                    key={subService.ilead_potential_id || `potential-${indexOfFirstItem + index}`} // Using a stable ID or generated one
                     className="hover:bg-blue-50 transition-colors duration-150 ease-in-out"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {indexOfFirstItem + index + 1}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                      {potential.clead_name || "Unknown"}
+                      {subService.subservice_name || "Unknown"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                      <span className="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
-                        {potential.company?.cCompany_name || "Unknown Company"}
-                      </span>
-                    </td>
+                    
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(potential.dcreated_dt) || "Unknown Date"}
+                      {formatDate(subService.dcreated_dt) || "Unknown Date"}
                     </td>
                   </tr>
                 ))
@@ -175,11 +160,10 @@ const SubService = ({company= {}}) => {
               <button
                 key={number + 1}
                 onClick={() => paginate(number + 1)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  currentPage === number + 1
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                className={`px-4 py-2 rounded-lg transition-colors ${currentPage === number + 1
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
               >
                 {number + 1}
               </button>

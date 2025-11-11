@@ -60,6 +60,7 @@ export const ENDPOINTS = {
   GET_STORAGE_DETAILS:`${BASE_URL}/fileSizeTracking`,
   COMPANY_LEAD_LOST_REASON : `${BASE_URL}/lead-lostreason`,
   CREATE_LEAD_LOST_REASON:`${BASE_URL}/lead-lostreason`,
-  LEAD_SERVICE:`${BASE_URL}/lead-service`
+  LEAD_SERVICE:`${BASE_URL}/lead-service`,
+  LEAD_SUB_SERVICE:`${BASE_URL}/sub-service`
 };
 

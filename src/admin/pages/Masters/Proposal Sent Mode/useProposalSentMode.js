@@ -1,5 +1,5 @@
 // controllers/UserController.js
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import * as proposalSentModeModel from "./proposalSentModeModel";
 
 export const useProposalSentMode = () => {
@@ -8,15 +8,18 @@ export const useProposalSentMode = () => {
   const [error, setError] = useState(null);
 
   //Contains the business logic to fetch all the companies
-  const fetchProposalSentMode = async (proposalData) => {
+  const fetchProposalSentMode = async (companyId) => {
+
+    console.log("calling model in controller. ")
+
     setLoading(true);
     try {
-      const data = await proposalSentModeModel.getAllProposalSentMode(proposalData);
-      console.log("✅ The proposal sent mode data is:", data.data.data);
+      const result = await proposalSentModeModel.getAllProposalSentMode(companyId);
+      console.log(" The proposal sent mode data is:", result.data.data);
       setLoading(false);
-      setProposalSentMode(data.data.data);
+      setProposalSentMode(result.data.data);
     } catch (error) {
-      console.error("❌ Error fetching proposal sent mode:", error);
+      console.error(" Error fetching proposal sent mode:", error);
     }
   };
 
@@ -43,6 +46,7 @@ export const useProposalSentMode = () => {
   const addProposalSentMode = async (proposalData) => {
     setLoading(true);
     try {
+      console.log("calling create prop  in controller. ")
       const data = await proposalSentModeModel.createProposalSentMode(
         proposalData
       );
