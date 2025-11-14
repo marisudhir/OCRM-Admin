@@ -18,6 +18,7 @@ export const ENDPOINTS = {
   BUSSINESS_TYPE:`${BASE_URL}/business-type`,
   LEAD_POTENTIAL : `${BASE_URL}/lead-potential/`,
   INDUSTRY : `${BASE_URL}/lead-industry/`,
+  INDUSTRIES : `${BASE_URL}/lead-industry`,
   LEAD_SOURCE : `${BASE_URL}/lead-source/`,
   CITY : `${BASE_URL}/city`, 
   USER : `${BASE_URL}/users/`,
