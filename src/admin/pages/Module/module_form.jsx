@@ -26,7 +26,7 @@ export default function ModuleForm({ onSubmit, module }) {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-2">
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -38,7 +38,7 @@ export default function ModuleForm({ onSubmit, module }) {
         <button type="submit" className="bg-black rounded text-white p-2">
           {module ? "Update Module" : "Create Module"}
         </button>
-        <button className="bg-black rounded m-1 text-white p-2">Cancle</button>
+        <button className="bg-black rounded m-1 text-white p-2">Cancel</button>
       </form>
     </div>
   );
