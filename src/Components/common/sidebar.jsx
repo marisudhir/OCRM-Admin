@@ -12,11 +12,11 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const fullMenuItems = [
-    { iconPath: '/images/nav/home.png', label: 'Dashboard', route: '/dashboard-admin' },
-    { iconPath: '/images/nav/org.png', label: 'Company', route: '/company' },
-    { iconPath: '/images/nav/calen.png', label: 'Reseller', route: '/reseller' },
-    { iconPath: '/images/nav/settings.png', label: 'Masters', route: '/masters' },
-    { iconPath: '/images/nav/settings.png', label: 'Subscription', route: '/subscriptions' },
+    { iconPath: '/images/nav/home.svg', label: 'Dashboard', route: '/dashboard-admin' },
+    { iconPath: '/images/nav/org.svg', label: 'Company', route: '/company' },
+    { iconPath: '/images/nav/customers.svg', label: 'Reseller', route: '/reseller' },
+    { iconPath: '/images/nav/masters.svg', label: 'Masters', route: '/masters' },
+    { iconPath: '/images/nav/deal.png', label: 'Subscription', route: '/subscriptions' },
     { iconPath: '/images/nav/settings.png', label: 'Module', route: '/module' },
     { iconPath: '/images/nav/settings.png', label: 'Module Allocation', route: '/moduleAllocation' },
     
@@ -118,7 +118,7 @@ const Sidebar = () => {
             onClick={toggleSidebar}
             className="flex items-center justify-center space-x-2 px-3 py-2 rounded-md border border-gray-300 hover:bg-gray-100 transition"
           >
-            <img src="/images/nav/collab.png" alt="Toggle" className="w-6 h-6" />
+            <img src="/images/nav/collab.svg" alt="Toggle" className="w-6 h-6" />
             {!isCollapsed && <span className="text-sm font-medium">Collapse</span>}
           </button>
 
@@ -126,7 +126,7 @@ const Sidebar = () => {
             onClick={handleLogout}
             className="flex items-center bg-black text-white space-x-2 px-4 py-2 hover:bg-red-600 rounded transition"
           >
-            <img src="/images/nav/logout.png" alt="Logout" className="w-5 h-5" />
+            <img src="/images/nav/logout.svg" alt="Logout" className="w-5 h-5" />
             {!isCollapsed && <span className="text-sm font-medium">Logout</span>}
           </button>
         </div>

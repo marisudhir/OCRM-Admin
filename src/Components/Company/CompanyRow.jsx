@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  FaUser,
-  FaPhone,
-  FaEnvelope,
-  FaGlobe,
-  FaBuilding,
-  FaIdBadge,
-  FaHashtag,
-  FaEdit,
-  FaTrash,
+import { FaUser, FaPhone, FaEnvelope, FaGlobe, FaBuilding, FaIdBadge, FaHashtag, FaEdit, FaTrash,
 } from 'react-icons/fa';
 
 const CompanyRow = ({ company, onEdit, onDelete }) => {
