@@ -16,9 +16,9 @@ const Sidebar = () => {
     { iconPath: '/images/nav/org.svg', label: 'Company', route: '/company' },
     { iconPath: '/images/nav/customers.svg', label: 'Reseller', route: '/reseller' },
     { iconPath: '/images/nav/masters.svg', label: 'Masters', route: '/masters' },
-    { iconPath: '/images/nav/deal.png', label: 'Subscription', route: '/subscriptions' },
-    { iconPath: '/images/nav/settings.png', label: 'Module', route: '/module' },
-    { iconPath: '/images/nav/settings.png', label: 'Module Allocation', route: '/moduleAllocation' },
+    { iconPath: '/images/nav/subscription.svg', label: 'Subscription', route: '/subscriptions' },
+    { iconPath: '/images/nav/module.svg', label: 'Module', route: '/module' },
+    { iconPath: '/images/nav/module_allocation.svg', label: 'Module Allocation', route: '/moduleAllocation' },
     
   ];
 
