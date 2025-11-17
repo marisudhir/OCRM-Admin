@@ -9,16 +9,18 @@ export const getAllDistrict = async () => {
     console.log('Raw States API Response:', response.data);
 
     // Transform data to include both state and country info
-    const transformedData = response.data.data.map(district => ({
-      iDistric_id: district.iDistric_id,
-      iState_id: district.iState_id,
-      cDistrict_name: district.cDistrict_name,
-      bactive: district.bactive,
-      states: {
-        iState_id: district.iState_id,  // Add country ID if not present
-        cState_name: district.state.cState_name
-      }
-    }));
+  const transformedData = response.data.data.map(district => ({
+  iDistric_id: district.iDistric_id,
+  iState_id: district.iState_id,
+  cDistrict_name: district.cDistrict_name,
+  bactive: district.bactive,
+
+  states: {
+    iState_id: district.iState_id,
+    cState_name: district?.state?.cState_name || "Unknown State"
+  }
+}));
+
 
     console.log('Transformed States Data:', transformedData);
     return transformedData;

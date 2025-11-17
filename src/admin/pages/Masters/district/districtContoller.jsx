@@ -11,42 +11,54 @@ const useDistrictController = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  /**
+   * ---------------------------------------------------------
+   * FETCH DISTRICTS
+   * ---------------------------------------------------------
+   */
   const fetchDistrict = useCallback(async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    const data = await getAllDistrict();
-    
-    console.log('Processed State Data:', data);
-    
-    if (data.length === 0) {
-      console.warn('No states found in response');
-      // Optional: Set a special empty state message
-      setError({ 
-        message: 'No states available', 
-        isEmpty: true 
-      });
-    }
-    
-    setDistrict(data);
-  } catch (err) {
-    console.error('Fetch states error:', err);
-    setError(err);
-    setDistrict([]);
-  } finally {
-    setLoading(false);
-  }
-}, []);
+    setLoading(true);
+    setError(null);
 
+    try {
+      const data = await getAllDistrict();
+
+      console.log("Processed District Data:", data);
+
+      if (!data || data.length === 0) {
+        setError({
+          message: "No districts available",
+          isEmpty: true
+        });
+      }
+
+      setDistrict(data || []);
+    } catch (err) {
+      console.error("Fetch district error:", err);
+      setError(err);
+      setDistrict([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * ---------------------------------------------------------
+   * CREATE DISTRICT
+   * ---------------------------------------------------------
+   */
   const createDistrict = async (districtData) => {
     setLoading(true);
     setError(null);
+
     try {
       const newDistrict = await addNewDistrict(districtData);
-      setDistrict(prev => [...prev, newDistrict]);
+
+      setDistrict((prev) => [...prev, newDistrict]);
+
       return true;
     } catch (err) {
-      console.error('Create state error:', err);
+      console.error("Create district error:", err);
       setError(err);
       return false;
     } finally {
@@ -54,33 +66,61 @@ const useDistrictController = () => {
     }
   };
 
-  // In districtController.js
-const updateDistrict = async (districtData) => {  // Accept single object
-  setLoading(true);
-  setError(null);
-  try {
-    const updatedDistrict = await modelUpdateDistrict(districtData.iDistric_id, districtData);
-    setDistrict(prev => prev.map(s => 
-      s.iDistric_id === districtData.iDistric_id ? { ...s, ...updatedDistrict } : s
-    ));
-    return true;
-  } catch (err) {
-    console.error('Update district error:', err);
-    setError(err);
-    return false;
-  } finally {
-    setLoading(false);
-  }
-};
+  /**
+   * ---------------------------------------------------------
+   * UPDATE DISTRICT
+   * districtData contains the full object
+   * ---------------------------------------------------------
+   */
+  const updateDistrict = async (districtData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Sending ID + updated body to API
+      const updatedDistrict = await modelUpdateDistrict(
+        districtData.iDistric_id,  
+        districtData
+      );
+
+      // Update state
+      setDistrict((prev) =>
+        prev.map((item) =>
+          item.iDistric_id === districtData.iDistric_id
+            ? { ...item, ...updatedDistrict }
+            : item
+        )
+      );
+
+      return true;
+    } catch (err) {
+      console.error("Update district error:", err);
+      setError(err);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * ---------------------------------------------------------
+   * DELETE DISTRICT
+   * ---------------------------------------------------------
+   */
   const deleteDistrict = async (districtId) => {
     setLoading(true);
     setError(null);
+
     try {
       await modelDeleteDistrict(districtId);
-      setDistrict(prev => prev.filter(s => s.iDistric_id !== districtId));
+
+      setDistrict((prev) =>
+        prev.filter((item) => item.iDistric_id !== districtId)
+      );
+
       return true;
     } catch (err) {
-      console.error('Delete district error:', err);
+      console.error("Delete district error:", err);
       setError(err);
       return false;
     } finally {
@@ -88,6 +128,11 @@ const updateDistrict = async (districtData) => {  // Accept single object
     }
   };
 
+  /**
+   * ---------------------------------------------------------
+   * EXPOSE VALUES
+   * ---------------------------------------------------------
+   */
   return {
     district,
     loading,
@@ -95,7 +140,7 @@ const updateDistrict = async (districtData) => {  // Accept single object
     fetchDistrict,
     createDistrict,
     updateDistrict,
-    deleteDistrict
+    deleteDistrict,
   };
 };
 
