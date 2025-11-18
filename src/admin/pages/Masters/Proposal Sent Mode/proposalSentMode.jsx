@@ -116,12 +116,12 @@ const ProposalSentMode = ({ company = "" }) => {
                   Proposal send mode
                 </th>
                
-                <th
+                {/* <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
                 >
                   Created At
-                </th>
+                </th> */}
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
@@ -156,9 +156,9 @@ const ProposalSentMode = ({ company = "" }) => {
                       {proposal.name || "Unknown"}
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(proposal.created_dt) || "Unknown Date"}
-                    </td>
+                    </td> */}
 
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <button

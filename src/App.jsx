@@ -56,12 +56,13 @@ import Reseller from "./admin/pages/Reseller/reseller";
 import ResellerProfile from "./admin/pages/Reseller/resellerProfile";
 import AlertScreen from "./admin/pages/Alerts/alerts";
 import StateMaster from "./admin/pages/Masters/States/StateMaster";
-import CountryMaster from "./admin/pages/Masters/country/countryMaster";
+import CountryMaster from "../src/admin/pages/Masters/Country/countryMaster"
 import CityMaster from "./admin/pages/Masters/city/cityMaster";
 import CurrencyMaster from "./admin/pages/Masters/currency/currencyMaster";
 import SubscriptionPage from "./admin/pages/Subscription_plan/subscription_components";
 import ModulePage from "./admin/pages/Module/module_components";
 import { ModuleAllocation } from "./admin/pages/Module_allocation/module_allocation_component";
+import ProposalSentMode from "./admin/pages/Masters/Proposal Sent Mode/proposalSentMode";
 
 function App() {
   return (
@@ -104,6 +105,7 @@ function App() {
               <Route path="/lead-source" element={<LeadSource />} />
               <Route path="/currency" element={<CurrencyMaster />} />
               <Route path="/district" element={<DistrictMaster />} />
+              <Route path= "/proposal-send-mode" element= {<ProposalSentMode />} />
               <Route path="/state" element={<StateMaster />} />
               <Route path="/country" element={<CountryMaster />} />
               <Route path="/lead-potential" element={<LeadPotentail />} />

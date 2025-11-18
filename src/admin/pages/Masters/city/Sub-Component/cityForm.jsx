@@ -33,7 +33,7 @@ useEffect(() => {
       cCity_name: initialData.cCity_name || '',
       // Try both possible property names for district ID
       iDistric_id: initialData.iDistric_id?.toString() || 
-                  initialData.iDistrict_id?.toString() || 
+                  initialData.iDistric_id?.toString() || 
                   initialData.district?.iDistric_id?.toString() || 
                   '',
       bactive: initialData.bactive !== false

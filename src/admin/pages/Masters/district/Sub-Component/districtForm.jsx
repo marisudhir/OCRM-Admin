@@ -13,7 +13,7 @@ const DistrictForm = ({
           deleteDistrict } = useDistrictController();
 
   const [formData, setFormData] = useState({
-    cDistrict_name: '',
+    cDistric_name: '',
     iState_id: '',
     bactive: true
   });
@@ -130,26 +130,27 @@ const DistrictForm = ({
           <label className="block text-sm font-medium text-gray-700 mb-1">
             State
           </label>
-          <select
-            name="iState_id"
-            value={formData.iState_id}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2"
-            required
-            disabled={loading || states.length === 0}
-          >
-            <option value="" disabled>
-              {states.length === 0 ? 'No states available' : 'Select  State '}
-            </option>
-            {states.map(states => (
-              <option
-                key={states.iState_id ||states.iState_id}
-                value={states.iState_id || states.iState_id}
-              >
-                {states.cState_name || states.name || 'Unnamed states'}
-              </option>
-            ))}
-          </select>
+         <select
+  name="iState_id"
+  value={formData.iState_id}
+  onChange={handleChange}
+  className="w-full border border-gray-300 rounded-md p-2"
+  required
+>
+  <option value="" disabled>
+    {states.length === 0 ? 'Loading states...' : 'Select State'}
+  </option>
+
+  {states.map((st) => (
+    <option
+      key={st.iState_id}
+      value={st.iState_id}
+    >
+      {st.cState_name}
+    </option>
+  ))}
+</select>
+
           {statesError && (
             <p className="mt-1 text-sm text-red-600">
               Failed to load countries: {statesError.message}
