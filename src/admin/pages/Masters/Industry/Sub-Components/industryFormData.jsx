@@ -1,14 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useIndustryController } from '../industryController';
 
-const LeadPotentialForm = ({ onClose, onSuccess }) => {
+const IndustryForm = ({ onClose, onSuccess, industry, onUpdate }) => {
   const { createIndustry } = useIndustryController();
+  const isEditing = !!industry;
 
   const [formData, setFormData] = useState({
     cindustry_name: '',
   });
 
   const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    if (isEditing && industry) {
+      setFormData({
+        cindustry_name: industry.cindustry_name || '',
+      });
+    }
+  }, [isEditing, industry]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,7 +53,7 @@ const LeadPotentialForm = ({ onClose, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSuccessMessage(''); // Clear prior success message
+    setSuccessMessage('');
 
     try {
       const { userId, companyId } = getUserAndCompanyFromToken();
@@ -58,21 +67,34 @@ const LeadPotentialForm = ({ onClose, onSuccess }) => {
         return;
       }
 
-      const payload = {
-        cindustry_name: formData.cindustry_name.trim(),
-        icompany_id: companyId,
-        created_by: userId,
-        dcreated_dt: new Date().toISOString(),
-      };
-
-      const isSuccess = await createIndustry(payload);
-
-      if (isSuccess) {
-        setSuccessMessage('Lead industry created successfully!');
-        onSuccess?.();
-        onClose();
+      if (isEditing) {
+        // Update existing industry
+        const isSuccess = await onUpdate(formData);
+        if (isSuccess) {
+          setSuccessMessage('Lead industry updated successfully!');
+          onSuccess?.();
+          onClose();
+        } else {
+          alert('Error updating industry!');
+        }
       } else {
-        alert('Error creating industry!');
+        // Create new industry
+        const payload = {
+          cindustry_name: formData.cindustry_name.trim(),
+          icompany_id: companyId,
+          created_by: userId,
+          dcreated_dt: new Date().toISOString(),
+        };
+
+        const isSuccess = await createIndustry(payload);
+
+        if (isSuccess) {
+          setSuccessMessage('Lead industry created successfully!');
+          onSuccess?.();
+          onClose();
+        } else {
+          alert('Error creating industry!');
+        }
       }
     } catch (err) {
       console.error('Submit error:', err);
@@ -82,7 +104,9 @@ const LeadPotentialForm = ({ onClose, onSuccess }) => {
 
   return (
     <div>
-      <h1 className="text-base sm:text-xl md:text-2xl lg:text-2xl">Create Lead-industry</h1>
+      <h1 className="text-base sm:text-xl md:text-2xl lg:text-2xl">
+        {isEditing ? 'Edit Lead Industry' : 'Create Lead Industry'}
+      </h1>
       <form onSubmit={handleSubmit} className="space-y-6 p-6 rounded-xl max-w-md">
         <div>
           <label className="block text-sm font-medium" htmlFor="cindustry_name">
@@ -112,7 +136,7 @@ const LeadPotentialForm = ({ onClose, onSuccess }) => {
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
-            Submit
+            {isEditing ? 'Update' : 'Submit'}
           </button>
         </div>
 
@@ -126,4 +150,4 @@ const LeadPotentialForm = ({ onClose, onSuccess }) => {
   );
 };
 
-export default LeadPotentialForm;
+export default IndustryForm;

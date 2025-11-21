@@ -48,7 +48,8 @@ import LeadStatus from "../Masters/Status/leadStauts.jsx";
 import LeadPotential from "../Masters/Potential/leadPotential.jsx";
 import LeadSource from "../Masters/Source/leadSource.jsx";
 import LeadIndustry from "../Masters/Industry/industry.jsx";
-import DistrictMaster from "../Masters/district/districtMasters.jsx"
+import DistrictMaster from "../Masters/district/districtMasters.jsx";
+import DurationMaster from "../Masters/Duration-master/durationMaster.jsx";
 import CountryMaster from "../Masters/country/countryMaster.jsx"
 import StateMaster from "../Masters/States/StateMaster.jsx"
 import CurrencyMaster from "../Masters/currency/currencyMaster.jsx"
@@ -164,10 +165,10 @@ const MasterDataPanel = ({ companyData }) => {
     },
     {
       id: 10,
-      title: "Sub-Service",
-      description: "List of currencies",
+      title: "Time Duration",
+      description: "Paln Duartion ",
       icon: "/icons/industrial-park.svg",
-      component: "sub-service",
+      component: "duration",
     },
     {
       id: 11,
@@ -186,7 +187,7 @@ const MasterDataPanel = ({ companyData }) => {
   ];
 
   const renderComponent = () => {
-    console.log("Selected company:", companyData?.cCompany_name); // Added optional chaining
+    // console.log("Selected company:", companyData?.cCompany_name); // Added optional chaining
     switch (selectedComponent) {
       case "LeadStatus":
         return <LeadStatus company={companyData?.cCompany_name} />; // Added optional chaining
@@ -206,8 +207,8 @@ const MasterDataPanel = ({ companyData }) => {
         return <CurrencyMaster />;
       case 'services':
         return <LeadServices company={companyData} />;
-      case 'sub-service':
-        return <SubService company={companyData} />;
+      case 'duration':
+        return <DurationMaster/>;
       case 'proposal-sent-mode':
         return <ProposalSentMode company={companyData} />;
       case 'lead-lost-reason':
@@ -274,6 +275,7 @@ const CompanyProfile = () => {
     bussiness,
     plan,
     storageDetailsController,
+    fetchBussinessType,
     storageDetails
   } = useCompanyController();
 
@@ -282,11 +284,14 @@ const CompanyProfile = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
-
   const [company, setCompany] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
+
+  // ADD THESE STATE DECLARATIONS:
+  const [dialogBusinessTypes, setDialogBusinessTypes] = useState([]);
+  const [loadingEditData, setLoadingEditData] = useState(false);
 
   // States
   const [errors, setErrors] = useState({});
@@ -349,12 +354,42 @@ const CompanyProfile = () => {
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
-  const handleOpenEditDialog = async (company) => {
-    // Fetch additional data needed for the edit form
-    await fetchAdditionalData(); // This should fetch cities, currencies, business types, plans
-    await fetchAllCities();
-    await fetchRoles(); // If needed for other parts
+const handleOpenEditDialog = async (company) => {
+  if (!company) {
+    showToast("error", "Company data not loaded yet");
+    return;
+  }
 
+  setLoadingEditData(true);
+
+  try {
+    console.log("📝 Starting to load form data...");
+
+    // Load all form data and wait for completion
+    const results = await Promise.all([
+      fetchAllCities(),
+      fetchRoles(),
+      fetchBussinessType()
+    ]);
+
+    console.log("✅ All form data loaded successfully");
+    
+    // Extract business types from the result (fetchBussinessType is the third promise)
+    const businessTypesResult = results[2]; 
+    console.log("📊 Business types result:", businessTypesResult);
+
+    // Set the dialog-specific business types
+    const loadedBusinessTypes = businessTypesResult || [];
+    setDialogBusinessTypes(loadedBusinessTypes);
+
+    // Find the current business type object
+    const currentBusinessType = loadedBusinessTypes.find(
+      biz => biz.id === company?.ibusiness_type
+    ) || null;
+
+    console.log("🎯 Current business type found:", currentBusinessType);
+
+    // Set edit company data
     setEditCompanyData({
       iCompany_id: company?.iCompany_id,
       cCompany_name: company?.cCompany_name || "",
@@ -377,18 +412,30 @@ const CompanyProfile = () => {
       ibusiness_type: company?.ibusiness_type || "",
       isubscription_plan: company?.isubscription_plan || "",
       ireseller_id: company?.ireseller_id || "",
+      bactive: company?.bactive !== undefined ? company.bactive : true,
+      // Keep these for Autocomplete components
       city: company?.city || null,
       currency: company?.currency || null,
-      business_type: company?.business_type || null,
-      subscription_plan: company?.subscription_plan || null
+      business_type: currentBusinessType,
+      subscription_plan: company?.pricing_plan || null
     });
 
+    console.log("✅ Opening edit dialog");
     setOpenEditDialog(true);
-  };
+    
+  } catch (error) {
+    console.error("❌ Error opening edit dialog:", error);
+    showToast("error", "Failed to load edit form data");
+  } finally {
+    setLoadingEditData(false);
+  }
+};
 
-  const handleCloseEditDialog = () => {
-    setOpenEditDialog(false);
-  };
+const handleCloseEditDialog = () => {
+  setOpenEditDialog(false);
+  setDialogBusinessTypes([]); // Reset when dialog closes
+  setEditCompanyData({});
+};
 
   const handleEditFormChange = (e) => {
     const { name, value } = e.target;
@@ -411,25 +458,53 @@ const CompanyProfile = () => {
     }
   };
 
-  const handleSaveEditedCompany = async () => {
-    const newErrors = validateCompanyData(editCompanyData);
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      showToast("error", "Please fill all required fields");
-      return;
-    }
 
-    const response = await editCompanyDetails(editCompanyData, editCompanyData.iCompany_id);
+  useEffect (() =>{
+    const loadBussinessType = async () => {
+      try {
+        await fetchBussinessType();
+        
+      } catch (error) {
+
+        console.log("failed to load bussiness type:", error)
+        
+      }
+    };
+     loadBussinessType();
+
+  }, [])
+// In your component's save handler
+const handleSaveEditedCompany = async () => {
+  // console.log("💾 Saving company edits...");
+  
+  // Validation
+  const newErrors = validateCompanyData(editCompanyData);
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    showToast("error", "Please fill all required fields");
+    return;
+  }
+
+  const companyId = editCompanyData.iCompany_id;
+  
+  if (!companyId) {
+    showToast("error", "Company ID is missing");
+    return;
+  }
+  
+  const response = await editCompanyDetails(editCompanyData, companyId);
+  
+  if (response.success) {
     setOpenEditDialog(false);
-    if (response) {
-      showToast("success", "Company details updated successfully.");
-      const updatedCompany = await fetchCompanyDataById(id);
-      setCompany(updatedCompany);
-    } else {
-      showToast("error", "Failed to update company details");
-    }
-  };
-
+    showToast("success", "Company details updated successfully.");
+    
+    // Refresh the company data
+    const updatedCompany = await fetchCompanyDataById(companyId);
+    setCompany(updatedCompany);
+  } else {
+    showToast("error", response.error);
+  }
+};
   const handleMenuOpen = (event, user) => {
     setAnchorEl(event.currentTarget);
     setUserToModify(user);
@@ -466,7 +541,6 @@ const CompanyProfile = () => {
 
   const handleUserCreate = async (e) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", userFormData);
 
     const jsonData = {
       cFull_name: userFormData.fullName,
@@ -480,7 +554,6 @@ const CompanyProfile = () => {
     };
 
     const res = await createUser(jsonData);
-    console.log(res);
     res
       ? showToast("success", "User created successfully.")
       : showToast("error", error);
@@ -498,8 +571,8 @@ const CompanyProfile = () => {
         //call the controller function to get storage details 
         const storageData = await storageDetailsController(id)
 
-        console.log("The storage company data is:", storageData);
-        console.table("The company data is:", data);
+        // console.log("The storage company data is:", storageData);
+        // console.table("The company data is:", data);
         setCompany(data);
       } catch (error) {
         console.error("Failed to fetch company data:", error);
@@ -512,7 +585,7 @@ const CompanyProfile = () => {
 
   useEffect(() => {
     if (activeTab === 2 && id) {
-      console.log("Fetching users for company ID:", id);
+      // console.log("Fetching users for company ID:", id);
       fetchUsersByCompanyId(id);
       fetchRoles();
     }
@@ -590,12 +663,12 @@ const CompanyProfile = () => {
           </div>
         </div>
 
-        <button
-          className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition-colors duration-200 shadow-sm"
-          onClick={handleOpenEditDialog}
-        >
-          Edit Profile
-        </button>
+      <button
+  className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition-colors duration-200 shadow-sm"
+  onClick={() => handleOpenEditDialog(company)} // Pass company as parameter
+>
+  Edit Profile
+</button>
       </div>
 
       {/* Overview Cards */}
@@ -632,6 +705,7 @@ const CompanyProfile = () => {
             <Tab label={<span className="font-semibold text-gray-700 hover:text-blue-600">Users</span>} {...a11yProps(2)} />
             <Tab label={<span className="font-semibold text-gray-700 hover:text-blue-600">Masters</span>} {...a11yProps(3)} />
             <Tab label={<span className="font-semibold text-gray-700 hover:text-blue-600">Audit login</span>} {...a11yProps(4)} />
+            <Tab label={<span className="font-semibold text-gray-700 hover:text-blue-600">User Attribite Access</span>} {...a11yProps(4)} />
           </Tabs>
         </Box>
 
@@ -693,7 +767,7 @@ const CompanyProfile = () => {
               </div>
             </div>
           </div>
-          {console.log("The company daaaaaaattaaaa is :", company)}
+          {/* {console.log("The company daaaaaaattaaaa is :", company)} */}
           <PieChart
             series={[
               {
@@ -726,7 +800,7 @@ const CompanyProfile = () => {
             {showProfile ? (
               // 👉 PROFILE VIEW
               <div>
-                {console.log('Selected User:', selectedUser)}
+                {/* {console.log('Selected User:', selectedUser)} */}
 
                 <CompanyUser user={selectedUser} companyId={company?.iCompany_id} setShowProfile={setShowProfile} />
               </div>
@@ -867,13 +941,91 @@ const CompanyProfile = () => {
             <TextField label="Pincode" name="cpincode" type="number" value={editCompanyData?.cpincode || ""} onChange={handleEditFormChange} fullWidth variant="outlined" />
             <TextField label="Logo URL" name="cLogo_link" value={editCompanyData?.cLogo_link || ""} onChange={handleEditFormChange} fullWidth variant="outlined" />
 
-            <Autocomplete options={cities} getOptionLabel={(option) => option.cCity_name || ""} value={editCompanyData?.city || null} onChange={(event, newValue) => { setEditCompanyData((prev) => ({ ...prev, city: newValue, icity_id: newValue ? newValue.icity_id : "" })); }} isOptionEqualToValue={(option, value) => option.icity_id === value?.icity_id} renderInput={(params) => (<TextField {...params} label={<span>City <span className="text-red-500">*</span></span>} fullWidth variant="outlined" error={!!errors.icity_id} helperText={errors.icity_id} />)} />
+{/* City Autocomplete */}
+<Autocomplete 
+  options={cities} 
+  getOptionLabel={(option) => option.cCity_name || ""} 
+  value={editCompanyData?.city || null}
+  onChange={(event, newValue) => { 
+    setEditCompanyData((prev) => ({ 
+      ...prev, 
+      city: newValue, 
+      icity_id: newValue ? newValue.icity_id : "" 
+    })); 
+  }} 
+  isOptionEqualToValue={(option, value) => option.icity_id === value?.icity_id} 
+  renderInput={(params) => (
+    <TextField 
+      {...params} 
+      label={<span>City <span className="text-red-500">*</span></span>} 
+      fullWidth 
+      variant="outlined" 
+      error={!!errors.icity_id} 
+      helperText={errors.icity_id} 
+    />
+  )} 
+/>
 
-            <Autocomplete options={currencies || []} getOptionLabel={(option) => option.currency_code || ""} value={editCompanyData?.currency || null} onChange={(event, newValue) => { setEditCompanyData((prev) => ({ ...prev, currency: newValue, icurrency_id: newValue ? newValue.icurrency_id : "" })); }} isOptionEqualToValue={(option, value) => option.icurrency_id === value?.icurrency_id} renderInput={(params) => (<TextField {...params} label="Currency" fullWidth variant="outlined" />)} />
+{/* Currency Autocomplete */}
+<Autocomplete 
+  options={currencies || []} 
+  getOptionLabel={(option) => option.currency_code || ""} 
+  value={editCompanyData?.currency || null}
+  onChange={(event, newValue) => { 
+    setEditCompanyData((prev) => ({ 
+      ...prev, 
+      currency: newValue, 
+      icurrency_id: newValue ? newValue.icurrency_id : "" 
+    })); 
+  }} 
+  isOptionEqualToValue={(option, value) => option.icurrency_id === value?.icurrency_id} 
+  renderInput={(params) => (
+    <TextField {...params} label="Currency" fullWidth variant="outlined" />
+  )} 
+/>
+{ /*bussiness type */}
+<Autocomplete 
+  options={dialogBusinessTypes} 
+  getOptionLabel={(option) => option.name || ""} 
+  value={editCompanyData?.business_type || null}
+  onChange={(event, newValue) => { 
+    console.log("🔄 Selected business type:", newValue);
+    setEditCompanyData((prev) => ({ 
+      ...prev, 
+      business_type: newValue, 
+      ibusiness_type: newValue ? newValue.id : "" 
+    })); 
+  }} 
+  isOptionEqualToValue={(option, value) => option.id === value?.id}
+  onOpen={() => console.log("📖 Business types dropdown opened, options:", dialogBusinessTypes)}
+  renderInput={(params) => (
+    <TextField 
+      {...params} 
+      label="Business Type" 
+      fullWidth 
+      variant="outlined" 
+      placeholder={dialogBusinessTypes.length > 0 ? "Select business type" : "Loading business types..."}
+    />
+  )} 
+/>
 
-            <Autocomplete options={bussiness || []} getOptionLabel={(option) => option.name || ""} value={editCompanyData?.business_type || null} onChange={(event, newValue) => { setEditCompanyData((prev) => ({ ...prev, business_type: newValue, ibusiness_type: newValue ? newValue.id : "" })); }} isOptionEqualToValue={(option, value) => option.id === value?.id} renderInput={(params) => (<TextField {...params} label="Business Type" fullWidth variant="outlined" />)} />
-
-            <Autocomplete options={plan || []} getOptionLabel={(option) => option.plan_name || ""} value={editCompanyData?.subscription_plan || null} onChange={(event, newValue) => { setEditCompanyData((prev) => ({ ...prev, subscription_plan: newValue, isubscription_plan: newValue ? newValue.plan_id : "" })); }} isOptionEqualToValue={(option, value) => option.plan_id === value?.plan_id} renderInput={(params) => (<TextField {...params} label="Subscription Plan" fullWidth variant="outlined" />)} />
+{/* Subscription Plan Autocomplete */}
+<Autocomplete 
+  options={plan || []} 
+  getOptionLabel={(option) => option.plan_name || ""} 
+  value={editCompanyData?.subscription_plan || null}
+  onChange={(event, newValue) => { 
+    setEditCompanyData((prev) => ({ 
+      ...prev, 
+      subscription_plan: newValue, 
+      isubscription_plan: newValue ? newValue.plan_id : "" 
+    })); 
+  }} 
+  isOptionEqualToValue={(option, value) => option.plan_id === value?.plan_id} 
+  renderInput={(params) => (
+    <TextField {...params} label="Subscription Plan" fullWidth variant="outlined" />
+  )} 
+/>
 
             <TextField
               label="Reseller ID"

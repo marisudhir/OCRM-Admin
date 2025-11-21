@@ -1,5 +1,6 @@
+// views/SubscriptionPage.jsx
 import React, { useState } from "react";
-import {FaEdit, FaSyncAlt} from "react-icons/fa";
+
 import { subscriptionCRUDOperation } from "./subscription_controller";
 import SubscriptionForm from "./subscription_form";
 
@@ -73,8 +74,7 @@ export default function SubscriptionPage() {
                     onClick={() => setEditing(sub)}
                     className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                   >
-                    {/* Edit */}
-                    <FaEdit Size={14} />
+                    Edit
                   </button>
                   <button
                     onClick={() =>
@@ -82,8 +82,7 @@ export default function SubscriptionPage() {
                     }
                     className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
                   >
-                    {/* Change Status */}
-                    <FaSyncAlt Size={14} />
+                    Change Status
                   </button>
                 </td>
               </tr>

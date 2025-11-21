@@ -12,6 +12,7 @@ export const useCompanyController = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [storageDetails,setStorageDetails]=useState([]);
+  const [ businessType, setBussinessType] = useState([])
 
 
   // Function to fetch all company details
@@ -209,52 +210,80 @@ const createCompany = async (data) => {
     }
   }
 
-  //function to create an admin user when the company is created
-  const editCompanyDetails = async (data, company_id) => {
-    setLoading(true);
-    try {
-      const res = await companyModel.editCompany({
-      bactive: data.bactive,
-          cCompany_name: data.cCompany_name,
-          cGst_no: data.cGst_no,
-          cLogo_link: data.cLogo_link,
-          cWebsite: data.cWebsite,
-          caddress1: data.caddress1,
-          caddress2: data.caddress2,
-          caddress3: data.caddress3,
-          email: data.email,
-          iPhone_no: data.iPhone_no,
-          iUser_no: data.iUser_no,
-          icin_no: data.icin_no,
-          icity_id: data.icity_id,
-          // ireseller_admin: data.ireseller_admin,
-          ireseller_id: 1,
-          isubscription_plan: data.isubscription_plan,
-          cpincode:data.cpincode,
-          cPan_no:data.cPan_no,
-          ibusiness_type:data.ibusiness_type,
-        
-          // cPassword: '',
-          irole_id: 1,
-          // cProfile_pic: '',
-          // reports_to: 13,
-          fax_no:'',
-          industry:'',
-
-      }, company_id);
-      console.log("Edit company response:", res);
-      setMessage(res.message);
-      //console.log("The response is :", res);
-      // await fetchCompanyDataById(company_id);
-      setLoading(false);
-      return true;
-    } catch (err) {
-      console.log("Error object:", err.message);
-      console.error('Failed to update company details:', err.message);
-      setError(err.message || 'Could not create admin user');
-      return false;
+// Final version - companyController.js
+const editCompanyDetails = async (data, company_id) => {
+  setLoading(true);
+  try {
+    console.log("🔄 Starting company edit process...");
+    
+    // Extract company ID safely
+    let actualCompanyId;
+    
+    if (typeof company_id === 'object' && company_id.iCompany_id) {
+      actualCompanyId = company_id.iCompany_id;
+    } else if (data.iCompany_id) {
+      actualCompanyId = data.iCompany_id;
+    } else {
+      actualCompanyId = company_id;
     }
+    
+    actualCompanyId = parseInt(actualCompanyId);
+    
+    if (isNaN(actualCompanyId)) {
+      throw new Error(`Invalid company ID: ${company_id}`);
+    }
+    
+    // Clean payload for backend
+    const payload = { 
+      cCompany_name: data.cCompany_name || "",
+      iPhone_no: data.iPhone_no || "",
+      cWebsite: data.cWebsite || "",
+      caddress1: data.caddress1 || "",
+      caddress2: data.caddress2 || "",
+      caddress3: data.caddress3 || "",
+      cemail_address: data.cemail_address || "",
+      cGst_no: data.cGst_no || "",
+      icin_no: data.icin_no || "",
+      cPan_no: data.cPan_no || "",
+      industry: data.industry || "",
+      fax_no: data.fax_no || "",
+      iUser_no: data.iUser_no ? parseInt(data.iUser_no) : 1,
+      cpincode: data.cpincode || "",
+      cLogo_link: data.cLogo_link || "",
+      bactive: data.bactive !== undefined ? data.bactive : true,
+      icity_id: data.icity_id ? parseInt(data.icity_id) : null,
+      icurrency_id: data.icurrency_id ? parseInt(data.icurrency_id) : null,
+      ibusiness_type: data.ibusiness_type ? parseInt(data.ibusiness_type) : null,
+      isubscription_plan: data.isubscription_plan ? parseInt(data.isubscription_plan) : null,
+      ireseller_id: data.ireseller_id ? parseInt(data.ireseller_id) : 1 // default to 1 if not provided
+    };
+    
+    console.log("📤 Final payload for backend:", payload);
+    console.log("🎯 Company ID:", actualCompanyId);
+    
+    const res = await companyModel.editCompany(payload, actualCompanyId);
+    
+    console.log("✅ Company edit successful");
+    setMessage("Company details updated successfully");
+    setLoading(false);
+    
+    return {
+      success: true,
+      companyId: actualCompanyId,
+      data: res
+    };
+    
+  } catch (err) {
+    console.error("❌ Failed to update company details:", err);
+    const errorMsg = err.response?.data?.error || err.message || 'Could not update company details';
+    setError(errorMsg);
+    setLoading(false);
+    return {
+      success: false,
+      error: errorMsg
+    };
   }
+};
 
   // Function to fetch users by company ID
   const fetchUsersByCompanyId = async (companyId) => {
@@ -270,7 +299,23 @@ const createCompany = async (data) => {
     }
   };
 
-
+// In companyController.js - Fix the fetchBussinessType function
+const fetchBussinessType = async () => {
+  try {
+    const res = await companyModel.getBussinessType();
+    console.log("Business types fetched:", res);
+    
+    // Extract the data array from the response
+    const businessTypes = res.data || [];
+    setBussinessType(businessTypes);
+    setError(null);
+    return businessTypes;  
+  } catch (error) {
+    console.error("Failed to fetch BusinessType:", error);
+    setError(error.message || "Something went wrong");
+    return [];
+  }
+};
   const fetchAttributes = async (companyId) => {
     try {
       const res = await companyModel.getAllAttributes(companyId);
@@ -314,6 +359,32 @@ const createCompany = async (data) => {
     }
   }
 
+  const updateAttributeStatus = async (iuaId, status) => {
+  try {
+    const response = await companyModel.updateAttributeStatus(iuaId, status);
+    return response;
+  } catch (err) {
+    console.error('Failed to update attribute status:', err);
+    throw err;
+  }
+};
+
+// Apply user attribute changes
+const applyUserAttributeChanges = async (targetUserId, stagedAttributes, existingUserAttributes) => {
+  try {
+    const response = await companyModel.applyUserAttributeChanges(
+      targetUserId, 
+      stagedAttributes, 
+      existingUserAttributes
+    );
+    return response;
+  } catch (err) {
+    console.error('Failed to apply attribute changes:', err);
+    throw err;
+  }
+};
+
+
 
   // useEffect(() => {
   //   fetchAllCompanyData();
@@ -333,6 +404,7 @@ const createCompany = async (data) => {
     editCompanyDetails,
     changeUserSettingsStatus,
     createUser,
+    fetchBussinessType,
     error,
     message,
     loading,
@@ -342,6 +414,8 @@ const createCompany = async (data) => {
     fetchAuditLogs,
     storageDetailsController,
     storageDetails,
+    updateAttributeStatus,
+  applyUserAttributeChanges,
   };
 }
 

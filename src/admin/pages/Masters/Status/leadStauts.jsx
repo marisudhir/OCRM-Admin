@@ -1,22 +1,24 @@
+// LeadStatus.js (updated)
 import React, { useState, useEffect, useMemo } from 'react';
 import LeadStatusForm from './Sub-Components/leadStatusForm';
-import { useLeadStatusController } from './leadStatusController'; // Assuming this hook provides loading/error states
+import { useLeadStatusController } from './leadStatusController';
 import formatDate from '../../../utils/formatDate';
 
-const LeadStatus = ({company=''} ) => {
-
-  // Custom hooks for CRUD operations
-  const { leadStatus, fetchLeadStatus, loading, error } = useLeadStatusController();
-   
-  // State for filtering by company
+const LeadStatus = ({ company = '' }) => {
+  const { 
+    leadStatus, 
+    fetchLeadStatus, 
+    loading, 
+    error, 
+    updateLeadStatus, 
+    deleteLeadStatus 
+  } = useLeadStatusController();
+  
   const [selectedCompany, setSelectedCompany] = useState(company);
-  // State for form visibility
   const [showForm, setShowForm] = useState(false);
-
-  // Pagination state
+  const [editingStatus, setEditingStatus] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Adjust items per page as needed
-
+  const [itemsPerPage] = useState(10);
 
   // Generate unique list of companies
   const companies = useMemo(() => {
@@ -26,7 +28,7 @@ const LeadStatus = ({company=''} ) => {
 
   // Filter lead statuses based on selected company
   const filteredLeadStatus = useMemo(() => {
-    if (!leadStatus) return []; // Handle null/undefined leadStatus
+    if (!leadStatus) return [];
     return selectedCompany
       ? leadStatus.filter(status => (status.company?.cCompany_name || "Unknown Company") === selectedCompany)
       : leadStatus;
@@ -40,13 +42,45 @@ const LeadStatus = ({company=''} ) => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   
-  // Reset page to 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedCompany, filteredLeadStatus.length]);
 
-  // --- Loading and Error States ---
-  if (loading) {
+  // Handle Edit
+  const handleEdit = (status) => {
+    setEditingStatus(status);
+    setShowForm(true);
+  };
+
+  // Handle Delete
+const handleDelete = async (id) => {
+  console.log("Deleting lead status with ID:", id); // Debug log
+  if (window.confirm('Are you sure you want to delete this lead status?')) {
+    const success = await deleteLeadStatus(id);
+    if (success) {
+      alert('Lead status deleted successfully!');
+    }
+  }
+};
+
+
+  // Handle form close
+  const handleFormClose = () => {
+    setShowForm(false);
+    setEditingStatus(null);
+  };
+
+  // Handle form success
+  const handleFormSuccess = () => {
+    fetchLeadStatus();
+    handleFormClose();
+  };
+
+  useEffect(() => {
+    fetchLeadStatus();
+  }, []);
+
+  if (loading && leadStatus.length === 0) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
         <p className="text-gray-600 text-lg">Loading lead status data...</p>
@@ -54,19 +88,13 @@ const LeadStatus = ({company=''} ) => {
     );
   }
 
-  if (error) {
+  if (error && leadStatus.length === 0) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-red-50">
-        <p className="text-red-600 text-lg">Error: {error.message || "Failed to fetch data."}</p>
+        <p className="text-red-600 text-lg">Error: {error}</p>
       </div>
     );
   }
-
-
-  //call the lead status 
-  useEffect(()=>{
-    fetchLeadStatus()
-  },[])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-blue-50 p-6 sm:p-8 font-sans antialiased">
@@ -105,7 +133,11 @@ const LeadStatus = ({company=''} ) => {
         {showForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
             <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg mx-4">
-              <LeadStatusForm onClose={() => setShowForm(false)} onSuccess={fetchLeadStatus} />
+              <LeadStatusForm 
+                onClose={handleFormClose} 
+                onSuccess={handleFormSuccess}
+                editingStatus={editingStatus}
+              />
             </div>
           </div>
         )}
@@ -125,24 +157,27 @@ const LeadStatus = ({company=''} ) => {
                   Company
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Created By
+                  Order ID 
                 </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Created At
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Actions
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {currentItems.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <td colSpan="6" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                     No lead statuses found for the selected criteria.
                   </td>
                 </tr>
               ) : (
                 currentItems.map((status, index) => (
                   <tr
-                    key={status.id || `status-${indexOfFirstItem + index}`}
+                    key={status.ilead_status_id || `status-${indexOfFirstItem + index}`}
                     className="hover:bg-blue-50 transition-colors duration-150 ease-in-out"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -157,10 +192,26 @@ const LeadStatus = ({company=''} ) => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {status.imodified_by || "Unknown User"}
+                      {status.orderId || "-"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(status.dcreated_dt) || "Unknown Date"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEdit(status)}
+                          className="text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(status.ilead_status_id)}
+                          className="text-red-600 hover:text-red-800 font-medium"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

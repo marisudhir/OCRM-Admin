@@ -1,55 +1,98 @@
-import React, { useState, useEffect, useMemo } from 'react'; // Added useEffect and useMemo
+// LeadPotential.js - Update the table and handlers
+import React, { useState, useEffect, useMemo } from 'react';
 import LeadPotentialForm from './Sub-Components/leadPotentialForm';
 import { useLeadPotentialController } from './leadPotentialController';
 import formatDate from '../../../utils/formatDate';
 
-const LeadPotential = ({company=""}) => {
-  // Custom hooks for CRUD operations
-  const { leadPotential, fetchLeadPotential, loading, error } = useLeadPotentialController(); // Assuming useLeadPotentialController provides loading and error states
+const LeadPotential = ({ company = "" }) => {
+  const {
+    leadPotential,
+    fetchLeadPotential,
+    loading,
+    error,
+    deletePotential
+  } = useLeadPotentialController();
 
-  // State to set the company values from the lead status list.
   const [selectedCompany, setSelectedCompany] = useState(company);
-  // State to control the form visibility
   const [showForm, setShowForm] = useState(false);
-  
-  // Pagination state
+  const [editingPotential, setEditingPotential] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // You can adjust items per page here
+  const [itemsPerPage] = useState(10);
 
-  // Fetch data on component mount
+  // Fetch on mount
   useEffect(() => {
     fetchLeadPotential();
-  }, []); // Dependency array to prevent infinite loop
+  }, []);
 
-  // Generate a unique list of companies from the lead potential response
-  // Memoize to re-calculate only when leadPotential changes
+  // Companies list for filter dropdown
   const companies = useMemo(() => {
     if (!leadPotential || leadPotential.length === 0) return [];
     return [...new Set(leadPotential.map(potential => potential.company?.cCompany_name || "Unknown Company"))];
   }, [leadPotential]);
 
-  // Filter the data based on the dropdown menu
-  // Memoize to re-calculate only when leadPotential or selectedCompany changes
-  const filteredLeadPotential = useMemo(() => {
-    if (!leadPotential) return []; // Handle null/undefined leadPotential
-    return selectedCompany
-      ? leadPotential.filter(potential => (potential.company?.cCompany_name || "Unknown Company") === selectedCompany)
-      : leadPotential;
-  }, [leadPotential, selectedCompany]);
+  // Filtered by company
+const filteredLeadPotential = useMemo(() => {
+  if (!leadPotential) return [];
 
-  // Pagination Logic
+  // Filter out inactive (bactive === false)
+  const activeOnly = leadPotential.filter(p => p.bactive !== false);
+
+  return selectedCompany
+    ? activeOnly.filter(p => (p.company?.cCompany_name || "Unknown Company") === selectedCompany)
+    : activeOnly;
+}, [leadPotential, selectedCompany]);
+
+
+  // Pagination indexes
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredLeadPotential.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Total pages
   const totalPages = Math.ceil(filteredLeadPotential.length / itemsPerPage);
 
+  // Paginate
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Reset page to 1 whenever filters change
+  // Reset page on filter change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCompany, filteredLeadPotential.length]); // Added filteredLeadPotential.length as a dependency
+  }, [selectedCompany, filteredLeadPotential.length]);
 
+  // Delete handler
+  const handleDelete = async (id) => {
+    if (!id) {
+      alert("Error: Cannot delete - missing lead potential ID");
+      return;
+    }
+
+    if (window.confirm('Are you sure you want to delete this lead potential?')) {
+      const success = await deletePotential(id);
+      if (success) {
+        alert('Lead potential deleted successfully!');
+      } else {
+        alert('Failed to delete lead potential!');
+      }
+    }
+  };
+
+  // Edit handler
+  const handleEdit = (potential) => {
+    setEditingPotential(potential);
+    setShowForm(true);
+  };
+
+  // Close form modal
+  const handleFormClose = () => {
+    setShowForm(false);
+    setEditingPotential(null);
+  };
+
+  // After successful create/update, refresh list & close form
+  const handleFormSuccess = () => {
+    fetchLeadPotential();
+    handleFormClose();
+  };
 
   if (loading) {
     return (
@@ -100,11 +143,15 @@ const LeadPotential = ({company=""}) => {
           </button>
         </div>
 
-        {/* Renders the form according to the state */}
+        {/* Form Modal */}
         {showForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
             <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg mx-4">
-              <LeadPotentialForm onClose={() => setShowForm(false)} onSuccess={fetchLeadPotential} />
+              <LeadPotentialForm 
+                onClose={handleFormClose} 
+                onSuccess={handleFormSuccess} 
+                editData={editingPotential}
+              />
             </div>
           </div>
         )}
@@ -114,31 +161,24 @@ const LeadPotential = ({company=""}) => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  S.No
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Status Name
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Company
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Created At
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">S.No</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status Name</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Company</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Created At</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {currentItems.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <td colSpan="5" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                     No lead potentials found for the selected criteria.
                   </td>
                 </tr>
               ) : (
                 currentItems.map((potential, index) => (
-                  <tr
-                    key={potential.ilead_potential_id || `potential-${indexOfFirstItem + index}`} // Using a stable ID or generated one
+                  <tr 
+                    key={potential.ileadpoten_id || index} 
                     className="hover:bg-blue-50 transition-colors duration-150 ease-in-out"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -154,6 +194,22 @@ const LeadPotential = ({company=""}) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(potential.dcreated_dt) || "Unknown Date"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEdit(potential)}
+                          className="text-blue-600 hover:text-blue-800 font-medium"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(potential.ileadpoten_id)}
+                          className="text-red-600 hover:text-red-800 font-medium"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -197,6 +253,6 @@ const LeadPotential = ({company=""}) => {
       </div>
     </div>
   );
-};
+}
 
 export default LeadPotential;

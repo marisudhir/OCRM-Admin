@@ -5,6 +5,7 @@ import * as companyModel from "./companyModel";
 import { User, Lock, CreditCard, Users, ArrowLeft } from "lucide-react";
 import ToggleSwitch from "../../components/ToggleSwitch";
 import {useToast}  from "../../../context/ToastContext";
+import AllowedAccess from "../../../Components/userAttribute/AllowedAttributes";
 
 const CompanyUser = ({ user, companyId, setShowProfile }) => {
   const targetUserId = user.iUser_id ? parseInt(user?.iUser_id) : null;
@@ -17,41 +18,49 @@ const CompanyUser = ({ user, companyId, setShowProfile }) => {
     error,
     fetchAttributes,
     fetchUserAttributes,
+        changeUserSettingsStatus // Add this from controller
+
   } = useCompanyController();
 
   const [stagedAttributes, setStagedAttributes] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
-  const { changeUserSettingsStatus } = useCompanyController();
   const { showToast } = useToast();
 
-  const [userSettings, setUserSettings] = useState({
-    userId: user.iUser_id,
-    isMailActive: user.mail_access,
-    isPhoneActive: user.phone_access,
-    isWebsiteActive: user.website_access,
-    isWhatsappActive: user.whatsapp_access,
-  });
-
-  useEffect(() => {
-    if (!loading && attributes.length > 0) {
-      const initialStaged = {};
-
-      attributes.forEach((attr) => {
-        initialStaged[attr.iattribute_id] = false;
+  // Initialize staged attributes when data loads
+useEffect(() => {
+  if (!loading && attributes.length > 0) {
+    const initialStaged = {};
+    
+    // Step 1: Create entries for ALL available attributes
+    attributes.forEach((attr) => {
+      initialStaged[attr.iattribute_id] = false; // Default to unchecked
+    });
+    
+    // Step 2: For attributes user already has, set to their current status
+    if (userAttributes && userAttributes.length > 0) {
+      userAttributes.forEach((userAttr) => {
+        if (userAttr.iattribute_id in initialStaged) {
+          // Set to true only if user actually has access (bactive: true)
+          initialStaged[userAttr.iattribute_id] = userAttr.bactive === true;
+        }
       });
-
-      userAttributes.forEach((assignedAttr) => {
-        initialStaged[assignedAttr.iattribute_id] = assignedAttr.bactive;
-      });
-
-      setStagedAttributes(initialStaged);
-      setHasPendingChanges(false);
     }
-  }, [attributes, userAttributes, loading]);
+    
+    console.log('🎯 INITIAL STATE: All attributes with user access status');
+    console.log('Available attributes:', attributes.length);
+    console.log('User attributes:', userAttributes.length);
+    console.log('Final staged state:', initialStaged);
+    
+    setStagedAttributes(initialStaged);
+    setHasPendingChanges(false);
+  }
+}, [attributes, userAttributes, loading]);
 
+  // Fetch data when component mounts or user changes
   useEffect(() => {
     if (targetUserId) {
+      console.log('Fetching data for user:', targetUserId);
       fetchAttributes();
       fetchUserAttributes(targetUserId);
     }
@@ -65,14 +74,6 @@ const CompanyUser = ({ user, companyId, setShowProfile }) => {
     setHasPendingChanges(true);
   };
 
-  const handleUserDetailsChange = (e) => {
-    const { name, value } = e.target;
-    setUserDetails((prevDetails) => ({
-      ...prevDetails,
-      [name]: value,
-    }));
-  };
-
   const handleSave = async () => {
     if (!targetUserId || isSaving || !hasPendingChanges) return;
 
@@ -84,32 +85,23 @@ const CompanyUser = ({ user, companyId, setShowProfile }) => {
         userAttributes
       );
 
+      // Refresh the user attributes after saving
       await fetchUserAttributes(targetUserId);
-      alert("Attribute changes saved successfully! 🎉");
+      
+      // Show success message
+      showToast("success", "Attribute access updated successfully! 🎉");
+      setHasPendingChanges(false);
+      
     } catch (err) {
       console.error("Failed to save attribute changes:", err);
-      await fetchUserAttributes(targetUserId);
-      alert("Error: Failed to save changes. Please try again.");
+      showToast("error", "Failed to save changes. Please try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  const ToggleSection = ({ label, name, value, onChange }) => {
-    return (
-      <div className="flex justify-between mt-4">
-        <span>{label}</span>
-        <ToggleSwitch
-          status={value}
-          name={name}
-          onToggle={(name, status) => onChange(name, status)}
-        />
-      </div>
-    );
-  };
-
-  const isReady = !loading && targetUserId;
-
+  // Check if we're ready to render
+  const isReady = !loading && targetUserId && attributes.length > 0;
   return (
     <div className="p-6 h-full w-ful bg-white overflow-y-auto">
       <div className="flex justify-start items-center mb-4 space-x-4">
@@ -157,12 +149,18 @@ const CompanyUser = ({ user, companyId, setShowProfile }) => {
                 active={activeSection === "General Info"}
                 onClick={() => setActiveSection("General Info")}
               />
+              <AllowedAccess 
+  userId={targetUserId}        // User ID from your user object
+  userName={user.cFull_name}   // User name for display
+  companyId={companyId}        // Company ID from your company object
+/>
               <SidebarItem
                 icon={<Lock />}
                 text="Allowed Attributes"
                 active={activeSection === "Allowed Attributes"}
                 onClick={() => setActiveSection("Allowed Attributes")}
               />
+              
               <SidebarItem
                 icon={<CreditCard />}
                 text="User Settings"
@@ -238,83 +236,93 @@ const CompanyUser = ({ user, companyId, setShowProfile }) => {
           </>
         )}
 
-        {/* Attribute List */}
-        {/* Attribute List */}
-        {activeSection === "Allowed Attributes" && (
-          <div className="flex flex-col flex-1 p-6 space-y-6">
-            {/* SAVE BUTTON */}
-            <div className="flex justify-end">
-              <button
-                onClick={handleSave}
-                disabled={
-                  !hasPendingChanges || isSaving || loading || !targetUserId
-                }
-                className={`px-6 py-2 rounded-lg font-semibold transition-colors duration-200 shadow-md ${
-                  hasPendingChanges && isReady && !isSaving
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                {isSaving ? "Saving..." : "Save Changes"}
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6">
-              {isReady &&
-                Object.entries(
-                  attributes.reduce((acc, attr) => {
-                    // Group attributes by module_name
-                    if (!acc[attr.module_table.cmodule_name])
-                      acc[attr.module_table.cmodule_name] = [];
-                    acc[attr.module_table.cmodule_name].push(attr);
-                    return acc;
-                  }, {})
-                ).map(([moduleName, moduleAttributes]) => (
-                  <div
-                    key={moduleName}
-                    className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-4"
-                  >
-                    {/* Module Header */}
-                    <h3 className="text-xl font-semibold mb-3 text-gray-800 border-b pb-2">
-                      <span className="text-base">Module</span> -{" "}
-                      <span className="font-bold text-xl">{moduleName}</span>
-                    </h3>
-
-                    {/* Module’s Attributes */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-                      {moduleAttributes.map((attr) => {
-                        const isChecked =
-                          stagedAttributes[attr.iattribute_id] || false;
-                        return (
-                          <label
-                            key={attr.iattribute_id}
-                            className="flex items-center space-x-3 border p-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              disabled={!isReady || isSaving}
-                              onChange={(e) =>
-                                handleCheckboxChange(
-                                  attr.iattribute_id,
-                                  e.target.checked
-                                )
-                              }
-                              className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-400"
-                            />
-                            <span className="text-gray-700 font-medium">
-                              {attr.cattribute_name}
-                            </span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-            </div>
+       
+     {/* Attribute List Section */}
+      {activeSection === "Allowed Attributes" && (
+        <div className="flex flex-col flex-1 p-6 space-y-6">
+          {/* Save Button */}
+          <div className="flex justify-end">
+            <button
+              onClick={handleSave}
+              disabled={!hasPendingChanges || isSaving || loading || !targetUserId}
+              className={`px-6 py-2 rounded-lg font-semibold transition-colors duration-200 shadow-md ${
+                hasPendingChanges && !isSaving
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              {isSaving ? "Saving..." : "Save Changes"}
+            </button>
           </div>
-        )}
 
+          {/* Info message for new users */}
+          {isReady && userAttributes.length === 0 && (
+            <div className="p-4 mb-4 text-sm text-yellow-800 bg-yellow-100 rounded-lg" role="alert">
+              ⚠️ This user currently has no attributes assigned. Check the boxes below to grant access.
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6">
+            {isReady &&
+              Object.entries(
+                attributes.reduce((acc, attr) => {
+                  if (!acc[attr.module_table.cmodule_name])
+                    acc[attr.module_table.cmodule_name] = [];
+                  acc[attr.module_table.cmodule_name].push(attr);
+                  return acc;
+                }, {})
+              ).map(([moduleName, moduleAttributes]) => (
+                <div
+                  key={moduleName}
+                  className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 p-4"
+                >
+                  <h3 className="text-xl font-semibold mb-3 text-gray-800 border-b pb-2">
+                    <span className="text-base">Module</span> -{" "}
+                    <span className="font-bold text-xl">{moduleName}</span>
+                  </h3>
+<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+  {moduleAttributes.map((attr) => {
+    const isChecked = stagedAttributes[attr.iattribute_id] || false;
+    const userHasAccess = userAttributes.find(uAttr => uAttr.iattribute_id === attr.iattribute_id);
+    
+    return (
+      <label
+        key={attr.iattribute_id}
+        className="flex items-center space-x-3 border p-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+      >
+        <input
+          type="checkbox"
+          checked={isChecked}
+          disabled={!isReady || isSaving}
+          onChange={(e) => {
+            console.log(`📝 User ${targetUserId} changed attribute ${attr.iattribute_id} to ${e.target.checked}`);
+            handleCheckboxChange(attr.iattribute_id, e.target.checked);
+          }}
+          className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-400"
+        />
+        <span className="text-gray-700 font-medium">
+          {attr.cattribute_name}
+        </span>
+        {isChecked && (
+          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+            Access granted
+          </span>
+        )}
+        {userHasAccess && !isChecked && (
+          <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+            Access revoked
+          </span>
+        )}
+      </label>
+    );
+  })}
+</div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+   
         {/* User related settings */}
         {activeSection === "User Settings" && (
           <div className="mt-6 flex-1 p-6 ">

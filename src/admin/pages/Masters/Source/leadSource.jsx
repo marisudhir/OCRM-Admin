@@ -1,25 +1,25 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import LeadSourceForm from './Sub-Components/leadSourceForm';
-import { useLeadSourceController } from './leadSourceController'; // Assuming this hook provides loading/error states
+import { useLeadSourceController } from './leadSourceController';
 import formatDate from '../../../utils/formatDate';
 
-const LeadSource = ({company=""}) => {
-  // Custom hooks for CRUD operations
-  const { leadSource, fetchLeadSource, loading, error } = useLeadSourceController();
+const LeadSource = ({ company = "" }) => {
+  const { leadSource, fetchLeadSource, deleteLeadSource, loading, error } = useLeadSourceController();
 
   // State for filtering by company
   const [selectedCompany, setSelectedCompany] = useState(company);
-  // State for form visibility
+  // State for form visibility and mode
   const [showForm, setShowForm] = useState(false);
+  const [editingSource, setEditingSource] = useState(null);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Adjust items per page as needed
+  const [itemsPerPage] = useState(10);
 
   // Fetch data on component mount
   useEffect(() => {
     fetchLeadSource();
-  }, []); // Dependency array
+  }, []);
 
   // Generate unique list of companies
   const companies = useMemo(() => {
@@ -29,7 +29,7 @@ const LeadSource = ({company=""}) => {
 
   // Filter lead sources based on selected company
   const filteredLeadSource = useMemo(() => {
-    if (!leadSource) return []; // Handle null/undefined leadSource
+    if (!leadSource) return [];
     return selectedCompany
       ? leadSource.filter(source => (source.company?.cCompany_name || "Unknown Company") === selectedCompany)
       : leadSource;
@@ -47,6 +47,36 @@ const LeadSource = ({company=""}) => {
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedCompany, filteredLeadSource.length]);
+
+  // Handle Edit
+  const handleEdit = (source) => {
+    setEditingSource(source);
+    setShowForm(true);
+  };
+
+  // Handle Delete
+  const handleDelete = async (sourceId, sourceName) => {
+    if (window.confirm(`Are you sure you want to delete "${sourceName}"?`)) {
+      const success = await deleteLeadSource(sourceId);
+      if (success) {
+        // Success message or notification can be added here
+        console.log('Lead source deleted successfully');
+      }
+    }
+  };
+
+  // Handle Form Close
+  const handleFormClose = () => {
+    setShowForm(false);
+    setEditingSource(null);
+  };
+
+  // Handle Form Success
+  const handleFormSuccess = () => {
+    setShowForm(false);
+    setEditingSource(null);
+    fetchLeadSource(); // Refresh data
+  };
 
   // --- Loading and Error States ---
   if (loading) {
@@ -102,7 +132,11 @@ const LeadSource = ({company=""}) => {
         {showForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
             <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg mx-4">
-              <LeadSourceForm onClose={() => setShowForm(false)} onSuccess={fetchLeadSource} />
+              <LeadSourceForm 
+                onClose={handleFormClose} 
+                onSuccess={handleFormSuccess}
+                editData={editingSource}
+              />
             </div>
           </div>
         )}
@@ -127,19 +161,22 @@ const LeadSource = ({company=""}) => {
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Created At
                 </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {currentItems.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <td colSpan="6" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                     No lead sources found for the selected criteria.
                   </td>
                 </tr>
               ) : (
                 currentItems.map((source, index) => (
                   <tr
-                    key={source.id || `source-${indexOfFirstItem + index}`} 
+                    key={source.source_id || `source-${indexOfFirstItem + index}`} 
                     className="hover:bg-blue-50 transition-colors duration-150 ease-in-out"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -158,6 +195,22 @@ const LeadSource = ({company=""}) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(source.updated_at) || "Unknown Date"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEdit(source)}
+                          className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(source.source_id, source.source_name)}
+                          className="text-red-600 hover:text-red-900 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

@@ -6,6 +6,19 @@ export const update = (id, endpoint, data) => API.put(`${endpoint}/${id}`, data)
 export const update_patch = (id, endpoint, data) => API.patch(`${endpoint}/${id}`, data);
 export const update_patch_no_id = (endpoint, data) => API.patch(endpoint, data);  
 export const deActive = (id, endpoint) => API.delete(`${endpoint}${id}`);
+export const deactive = (id, endpoint) => API.delete(`${endpoint}/${id}`);
+
+export const updateHelper = (id, endpoint, data) => API.put(`${endpoint}${id}`, data);
+
+
+export const deleteWithQueryParams = (endpoint, queryParams) => {
+
+  const queryString = new URLSearchParams(queryParams).toString();
+  const url = `${endpoint}?${queryString}`;
+  return API.delete(url);
+};
+
+
 
 //UPDATE WITH QUERY PARAMS
 export const updateWithQueryParams = (queryParams, endpoint, data) => {

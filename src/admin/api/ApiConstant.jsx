@@ -11,15 +11,19 @@ export const ENDPOINTS = {
   UPDATE_ATTRIBUTE_USER_ID: `${BASE_URL}/user-attribute`,
   DASHBOARD: `${BASE_URL}/admin/dashboard`,
   LEAD_STATUS: `${BASE_URL}/lead-status/`,
+
   PROPOSAL_SENT_MODE: `${BASE_URL}/proposal-send-mode`,
   COMPANIES : `${BASE_URL}/company`,
   COMPANY_SETTINGS : `${BASE_URL}/company/settings`,
   COMPANIES_ID : `${BASE_URL}/company`,
   BUSSINESS_TYPE:`${BASE_URL}/business-type`,
   LEAD_POTENTIAL : `${BASE_URL}/lead-potential/`,
+  PLAN_DURATION : `${BASE_URL}/planDuration`,
   INDUSTRY : `${BASE_URL}/lead-industry/`,
   INDUSTRIES : `${BASE_URL}/lead-industry`,
   LEAD_SOURCE : `${BASE_URL}/lead-source/`,
+  
+  
   CITY : `${BASE_URL}/city`, 
   USER : `${BASE_URL}/users/`,
   ROLE : `${BASE_URL}/role/`,  
@@ -61,6 +65,8 @@ export const ENDPOINTS = {
   GET_STORAGE_DETAILS:`${BASE_URL}/fileSizeTracking`,
   COMPANY_LEAD_LOST_REASON : `${BASE_URL}/lead-lostreason`,
   CREATE_LEAD_LOST_REASON:`${BASE_URL}/lead-lostreason`,
+  LEAD_LOST_REASON:`${BASE_URL}/lead-lostreason/`,
+
   LEAD_SERVICE:`${BASE_URL}/lead-service`,
   LEAD_SUB_SERVICE:`${BASE_URL}/sub-service`
 };

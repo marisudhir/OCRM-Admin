@@ -1,16 +1,17 @@
 import { useState, useEffect, useMemo } from 'react';
 import formatDate from '../../../utils/formatDate';
 import { useSubService } from './useSubService';
+import LeadPotentialForm from '../Potential/Sub-Components/leadPotentialForm';
 
 const SubService = ({ company = {} }) => {
   console.log("company details are : ", company.iCompany_id)
   // Custom hooks for CRUD operations
-  const { subService, fetchLeadSubService, loading, error } = useSubService(); // Assuming useLeadPotentialController provides loading and error states
+  const { subService, fetchLeadSubService, loading, error } = useSubService();
+  
   // Fetch data on component mount
   useEffect(() => {
     fetchLeadSubService(company.iCompany_id);
-  }, [ company?.iCompany_id]); // Dependency array to prevent infinite loop
-
+  }, [company?.iCompany_id]); // Dependency array to prevent infinite loop
 
   // State to set the company values from the lead status list.
   const [selectedCompany, setSelectedCompany] = useState(company?.iCompany_id ?? '');
@@ -20,9 +21,6 @@ const SubService = ({ company = {} }) => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10); // You can adjust items per page here
-
-
-
 
   // Filter the data based on the dropdown menu
   // Memoize to re-calculate only when leadPotential or selectedCompany changes
@@ -38,13 +36,12 @@ const SubService = ({ company = {} }) => {
   // Reset page to 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [ subService.length]); // Added filteredLeadPotential.length as a dependency
-
+  }, [subService.length]); // Added filteredLeadPotential.length as a dependency
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
-        <p className="text-gray-600 text-lg">Loading lead potential data...</p>
+        <p className="text-gray-600 text-lg">Loading lead sub-service data...</p>
       </div>
     );
   }
@@ -94,12 +91,16 @@ const SubService = ({ company = {} }) => {
         {showForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
             <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg mx-4">
-              {/* <LeadPotentialForm onClose={() => setShowForm(false)} onSuccess={fetchLeadPotential} /> */}
+              {/* FIX: Use fetchLeadSubService instead of fetchLeadPotential */}
+              <LeadPotentialForm 
+                onClose={() => setShowForm(false)} 
+                onSuccess={() => fetchLeadSubService(company.iCompany_id)} 
+              />
             </div>
           </div>
         )}
 
-        {/* Lead Potential Table */}
+        {/* Lead Sub-service Table */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -110,7 +111,6 @@ const SubService = ({ company = {} }) => {
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Sub-Service 
                 </th>
-                
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Created At
                 </th>
@@ -119,25 +119,24 @@ const SubService = ({ company = {} }) => {
             <tbody className="bg-white divide-y divide-gray-200">
               {currentItems.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                    No lead potentials found for the selected criteria.
+                  <td colSpan="3" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                    No lead sub-services found for the selected criteria.
                   </td>
                 </tr>
               ) : (
-                currentItems.map((subService, index) => (
+                currentItems.map((subServiceItem, index) => (
                   <tr
-                    key={subService.ilead_potential_id || `potential-${indexOfFirstItem + index}`} // Using a stable ID or generated one
+                    key={subServiceItem.isubservice_id || `subservice-${indexOfFirstItem + index}`}
                     className="hover:bg-blue-50 transition-colors duration-150 ease-in-out"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {indexOfFirstItem + index + 1}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                      {subService.subservice_name || "Unknown"}
+                      {subServiceItem.subservice_name || "Unknown"}
                     </td>
-                    
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(subService.dcreated_dt) || "Unknown Date"}
+                      {formatDate(subServiceItem.dcreated_at) || "Unknown Date"}
                     </td>
                   </tr>
                 ))

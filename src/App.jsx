@@ -46,6 +46,7 @@ import Company from "./admin/pages/Company/companies";
 import MasterData from "./admin/pages/Masters/masterData";
 import LeadStatus from "./admin/pages/Masters/Status/leadStauts";
 import LeadSource from "./admin/pages/Masters/Source/leadSource";
+import DurationMaster from "./admin/pages/Masters/Duration-master/durationMaster";
 import DistrictMaster from "./admin/pages/Masters/district/districtMasters";
 import LeadPotentail from "./admin/pages/Masters/Potential/leadPotential";
 import Indsutry from "./admin/pages/Masters/Industry/industry";
@@ -126,6 +127,7 @@ function App() {
               <Route path ="city" element={<CityMaster/>} />
               <Route path="history" element={<HistoryPage />} />
               <Route path="companylist" element={<CompanyList />} />
+               <Route path="duration" element={<DurationMaster />} />
               <Route path="companypage" element={<CompanyPage />} />
               <Route path="analytics" element={<UserAnalyticsPage />} />
               <Route path="teamview" element={<TeamviewDashboard />} />

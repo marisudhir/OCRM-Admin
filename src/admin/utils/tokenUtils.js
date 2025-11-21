@@ -75,6 +75,39 @@ export const getCompanyIdFromToken = () => {
   }
 };
 
+
+export const getUserIdFromToken = () => {
+  try {
+    const decodedToken = decodeToken();
+    
+    if (!decodedToken) {
+      return null;
+    }
+
+    // Try different possible property names for user ID
+    const userId = 
+      decodedToken.user_id ||      // Most common
+      decodedToken.userId ||       // camelCase
+      decodedToken.id ||           // Simple id
+      decodedToken.sub ||          // JWT standard subject
+      decodedToken.userID ||       // Alternative camelCase
+      decodedToken.uid ||          // Short form
+      decodedToken.iUser_id ||     // Hungarian notation
+      decodedToken.employee_id ||  // Alternative naming
+      decodedToken.emp_id;         // Short alternative
+
+    console.log("Extracted user ID:", userId);
+
+    if (!userId) {
+      console.warn("User ID not found in token. Available properties:", Object.keys(decodedToken));
+    }
+
+    return userId;
+  } catch (error) {
+    console.error("Error getting user ID from token:", error);
+    return null;
+  }
+};
 // Alternative method using try-catch for each possible property
 export const getCompanyIdFromTokenAlternative = () => {
   const decodedToken = decodeToken();

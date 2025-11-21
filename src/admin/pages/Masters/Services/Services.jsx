@@ -1,46 +1,36 @@
-import { useState, useEffect, useMemo } from 'react'; // Added useEffect and useMemo
-// import LeadPotentialForm from '../../Masters/Potential/Sub-Components';
+import React, { useState, useEffect } from 'react';
 import { useServices } from './useServices';
 import ServiceForm from './Sub-Components/ServiceForm';
+import { useToast } from '../../../context/ToastContext';
 
 const LeadServices = ({ company = {} }) => {
-  // Custom hooks for CRUD operations
-  const { createLeadServices, fetchLeadServices, loading, leadServices, error } = useServices();
+  const { 
+    createLeadServices, 
+    updateLeadService, 
+    deleteLeadService, 
+    fetchLeadServices, 
+    loading, 
+    leadServices, 
+    error 
+  } = useServices();
+  
+  const { showToast } = useToast();
   console.log("Service array : ", leadServices);
-  // State to set the company values from the lead status list.
+  
   const [selectedCompany, setSelectedCompany] = useState(company?.iCompany_id);
-  // State to control the form visibility
   const [showForm, setShowForm] = useState(false);
+  const [editingService, setEditingService] = useState(null);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // You can adjust items per page here
+  const [itemsPerPage] = useState(10);
 
   // Fetch data on component mount 
   useEffect(() => {
     fetchLeadServices(company?.iCompany_id);
-  }, [company?.iCompany_id]); // Dependency array to prevent infinite loop
-
-  // Filter the data based on the dropdown menu
-  // Memoize to re-calculate only when leadPotential or selectedCompany changes
-  // const filteredLeadServices = useMemo(() => {
-
-  //   if (!Array.isArray(leadServices)) {
-  //     return [];
-  //   }
-
-  //   return selectedCompany
-  //     ? leadServices.filter(
-  //       (service) => service?.icompany_id === Number(selectedCompany)
-  //     )
-  //     : leadServices;
-  // }, [leadServices, selectedCompany]);
-
-
-
+  }, [company?.iCompany_id]);
 
   // Pagination Logic
-
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = leadServices.slice(indexOfFirstItem, indexOfLastItem);
@@ -51,8 +41,34 @@ const LeadServices = ({ company = {} }) => {
   // Reset page to 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCompany, leadServices.length]); // Added filteredLeadPotential.length as a dependency
+  }, [selectedCompany, leadServices.length]);
 
+  // Handle edit service
+  const handleEdit = (service) => {
+    setEditingService(service);
+    setShowForm(true);
+  };
+
+  // Handle delete service
+  const handleDelete = async (service) => {
+    if (!window.confirm(`Are you sure you want to delete "${service.serviceName}"?`)) {
+      return;
+    }
+
+    const success = await deleteLeadService(service.iservice_id);
+    if (success) {
+      showToast("success", "Lead service deleted successfully!");
+    } else {
+      showToast("error", "Failed to delete lead service!");
+    }
+  };
+
+  // Handle form success (both create and update)
+  const handleFormSuccess = () => {
+    fetchLeadServices();
+    setShowForm(false);
+    setEditingService(null);
+  };
 
   if (loading) {
     return (
@@ -78,12 +94,12 @@ const LeadServices = ({ company = {} }) => {
         </h1>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-end items-center mb-6">
-
-
-          {/* Add Button */}
           <button
             className="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200"
-            onClick={() => setShowForm(true)}
+            onClick={() => {
+              setEditingService(null);
+              setShowForm(true);
+            }}
           >
             + Add Lead Service
           </button>
@@ -93,14 +109,22 @@ const LeadServices = ({ company = {} }) => {
         {showForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
             <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg mx-4">
-              <ServiceForm onClose={() => setShowForm(false)} onSuccess={fetchLeadServices} />
+              <ServiceForm 
+                onClose={() => {
+                  setShowForm(false);
+                  setEditingService(null);
+                }} 
+                onSuccess={handleFormSuccess}
+                service={editingService}
+                onUpdate={updateLeadService}
+              />
             </div>
           </div>
         )}
 
-        {/* Lead Potential Table */}
-        <div className="bg-white rounded-xl  shadow-md overflow-hidden border border-gray-100">
-          <table className="min-w-full divide-y  divide-gray-200">
+        {/* Lead Services Table */}
+        <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+          <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -115,33 +139,49 @@ const LeadServices = ({ company = {} }) => {
                 <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Created At
                 </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {currentItems.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                  <td colSpan="5" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                     No lead service found for the selected criteria.
                   </td>
                 </tr>
               ) : (
                 currentItems.map((service, index) => (
                   <tr
-                    key={service.iservice_id || `potential-${indexOfFirstItem + index}`} // Using a stable ID or generated one
+                    key={service.iservice_id || `potential-${indexOfFirstItem + index}`}
                     className="hover:bg-blue-50 transition-colors duration-150 ease-in-out"
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {indexOfFirstItem + index + 1}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                      {service.cservice_name || "Unknown"}
-                    </td>
-                   
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {service.createdBy}
+                      {service.serviceName || "Unknown"}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {service.createdAt || "Unknown Date"}
+                      {service.createdBy?.fullName || "Unknown"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {service.createdAt || service.dcreated_dt || "Unknown Date"}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button
+                        onClick={() => handleEdit(service)}
+                        className="text-blue-600 hover:text-blue-900 mr-4"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(service)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -164,10 +204,11 @@ const LeadServices = ({ company = {} }) => {
               <button
                 key={number + 1}
                 onClick={() => paginate(number + 1)}
-                className={`px-4 py-2 rounded-lg transition-colors ${currentPage === number + 1
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  currentPage === number + 1
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
+                }`}
               >
                 {number + 1}
               </button>

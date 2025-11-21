@@ -1,17 +1,17 @@
-import {  useState } from 'react';
+import { useState } from 'react';
 import * as industryModel from './industryModel';
 
 export const useIndustryController = () => {
-  const [industries, setIndusties] = useState([]);
-  const [error, setError] = useState(null); // Optional: Error state
+  const [industries, setIndustries] = useState([]);
+  const [error, setError] = useState(null);
 
-  // Fetch all lead statuses
+  // Fetch all lead statuses (only active ones)
   const fetchIndustryData = async () => {
     try {
       const data = await industryModel.getAllIndustry();
-      setIndusties(data);
+      setIndustries(data);
     } catch (err) {
-      console.error('Failed to fetch lead potential:', err);
+      console.error('Failed to fetch industries:', err);
       setError(err.message || 'Something went wrong');
     }
   };
@@ -23,17 +23,44 @@ export const useIndustryController = () => {
       await fetchIndustryData();
       return true;
     } catch (err) {
-      console.error('Failed to create lead potential:', err);
-      setError(err.message || 'Could not create lead potential');
+      console.error('Failed to create industry:', err);
+      setError(err.message || 'Could not create industry');
       return false;
     }
   };
 
-  
+  // Update an existing lead status
+  const updateIndustry = async (industryId, formData) => {
+    try {
+      await industryModel.updateIndustry(industryId, formData);
+      await fetchIndustryData();
+      return true;
+    } catch (err) {
+      console.error('Failed to update industry:', err);
+      setError(err.message || 'Could not update industry');
+      return false;
+    }
+  };
+
+  // Delete (soft delete) a lead status
+  const deleteIndustry = async (industryId, formData) => {
+    try {
+      await industryModel.deleteIndustry(industryId, formData);
+      await fetchIndustryData();
+      return true;
+    } catch (err) {
+      console.error('Failed to delete industry:', err);
+      setError(err.message || 'Could not delete industry');
+      return false;
+    }
+  };
+
   return {
     industries,
     createIndustry,
-    fetchIndustryData, // for component reload once create API hits
-    error, // Optional: expose to show in UI
+    updateIndustry,
+    deleteIndustry,
+    fetchIndustryData,
+    error,
   };
 };
