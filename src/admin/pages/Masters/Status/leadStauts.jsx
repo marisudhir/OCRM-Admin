@@ -20,19 +20,25 @@ const LeadStatus = ({ company = '' }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
-  // Generate unique list of companies
-  const companies = useMemo(() => {
+  // Filter only active lead statuses (bactive: true)
+  const activeLeadStatus = useMemo(() => {
     if (!leadStatus || leadStatus.length === 0) return [];
-    return [...new Set(leadStatus.map(status => status.company?.cCompany_name || "Unknown Company"))];
+    return leadStatus.filter(status => status.bactive === true);
   }, [leadStatus]);
 
-  // Filter lead statuses based on selected company
+  // Generate unique list of companies from active statuses
+  const companies = useMemo(() => {
+    if (!activeLeadStatus || activeLeadStatus.length === 0) return [];
+    return [...new Set(activeLeadStatus.map(status => status.company?.cCompany_name || "Unknown Company"))];
+  }, [activeLeadStatus]);
+
+  // Filter active lead statuses based on selected company
   const filteredLeadStatus = useMemo(() => {
-    if (!leadStatus) return [];
+    if (!activeLeadStatus) return [];
     return selectedCompany
-      ? leadStatus.filter(status => (status.company?.cCompany_name || "Unknown Company") === selectedCompany)
-      : leadStatus;
-  }, [leadStatus, selectedCompany]);
+      ? activeLeadStatus.filter(status => (status.company?.cCompany_name || "Unknown Company") === selectedCompany)
+      : activeLeadStatus;
+  }, [activeLeadStatus, selectedCompany]);
 
   // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -53,16 +59,15 @@ const LeadStatus = ({ company = '' }) => {
   };
 
   // Handle Delete
-const handleDelete = async (id) => {
-  console.log("Deleting lead status with ID:", id); // Debug log
-  if (window.confirm('Are you sure you want to delete this lead status?')) {
-    const success = await deleteLeadStatus(id);
-    if (success) {
-      alert('Lead status deleted successfully!');
+  const handleDelete = async (id) => {
+    console.log("Deleting lead status with ID:", id); // Debug log
+    if (window.confirm('Are you sure you want to delete this lead status?')) {
+      const success = await deleteLeadStatus(id);
+      if (success) {
+        alert('Lead status deleted successfully!');
+      }
     }
-  }
-};
-
+  };
 
   // Handle form close
   const handleFormClose = () => {
@@ -171,7 +176,7 @@ const handleDelete = async (id) => {
               {currentItems.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                    No lead statuses found for the selected criteria.
+                    No active lead statuses found for the selected criteria.
                   </td>
                 </tr>
               ) : (

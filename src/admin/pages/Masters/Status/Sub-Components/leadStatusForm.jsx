@@ -10,7 +10,7 @@ const LeadStatusForm = ({ onClose, onSuccess, editingStatus }) => {
     clead_name: '',
     icompany_id: '',
     orderId: 0,
-    imodified_by: 2 // Default user ID, you might want to get this from authentication
+    // imodified_by: '' // Default user ID, you might want to get this from authentication
   });
 
   // Initialize form with editing data if available
@@ -20,14 +20,14 @@ const LeadStatusForm = ({ onClose, onSuccess, editingStatus }) => {
         clead_name: editingStatus.clead_name || '',
         icompany_id: editingStatus.icompany_id || '',
         orderId: editingStatus.orderId || 0,
-        imodified_by: 2 // Default user ID
+        // imodified_by: 2 // Default user ID
       });
     } else {
       setFormData({
         clead_name: '',
         icompany_id: '',
         orderId: 0,
-        imodified_by: 2
+        // imodified_by: 2
       });
     }
   }, [editingStatus]);

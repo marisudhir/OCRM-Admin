@@ -1,5 +1,4 @@
 import React, { useState, useReducer, useCallback } from 'react';
-
 import {
   Box,
   Typography,
@@ -16,7 +15,6 @@ import {
   MenuItem,
   IconButton,
 } from "@mui/material";
-import AddIcon from '@mui/icons-material/Add';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import EditIcon from '@mui/icons-material/Edit';
 
@@ -24,10 +22,12 @@ import ToggleButton from '../../components/ToggleSwitch'
 import Collapsible from '../../components/Collipsable'
 import { useCompanyController  } from './companyController';
 
+// Import your API functions
+import * as companyModel from './companyModel';
+
 // --- Constants & Utilities ---
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const APP_PASSWORD_REGEX = /^[a-z]*$/; // Lowercase letters only
-
+const APP_PASSWORD_REGEX = /^[a-z]*$/;
 
 // --- Reducer for Default Email Account Form ---
 const emailFormReducer = (state, action) => {
@@ -60,28 +60,15 @@ const emailFormReducer = (state, action) => {
   }
 };
 
-
 // --- Sub-component: General Settings Section ---
-const GeneralSettingsSection = ({ formData, handleChange, settings }) => {
-
+const GeneralSettingsSection = ({ formData, handleChange, settings, company }) => {
   const [localSettings, setLocalSettings] = useState(settings || {});
 
   const ToggleSection = ({ label, status, name, companyId, sub_name }) => {
     const { changeSettingsStatus } = useCompanyController();
-    console.log(
-      "The toggle section props are11:",
-      label,
-      status,
-      name,
-      sub_name,
-      companyId
-    );
-
-    
 
     const handleToggleChange = (name, status, data) => {
       setLocalSettings((prev) => {
-        // copy previous state
         const updated = { ...prev };
 
         if (data.sub_name) {
@@ -113,241 +100,172 @@ const GeneralSettingsSection = ({ formData, handleChange, settings }) => {
     );
   };
 
-
   return (
-  <>
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-      <Box>
-        {/* <Typography variant="subtitle1" className="font-semibold text-gray-800">
-          Preferred Currency
-        </Typography>
-        <Typography variant="body2" className="text-gray-500 mt-1">
-          All pricing and reports will use this currency.
-        </Typography> */}
-      </Box>
-
-      {/* <FormControl
-        variant="outlined"
-        sx={{ minWidth: 120, mt: { xs: 2, sm: 0 } }}
-      >
-        <Select
-          name="currency"
-          value={formData.currency || "INR"} // Default to INR if not set
-          onChange={handleChange}
-          inputProps={{ "aria-label": "Preferred Currency" }}
-          size="small"
+    <>
+      {/* Account Status Dropdown - Corrected Version */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <Box>
+          <Typography variant="subtitle1" className="font-semibold text-gray-800">
+            Account Status
+          </Typography>
+          <Typography variant="body2" className="text-gray-500 mt-1">
+            Define the current state of the company account.
+          </Typography>
+        </Box>
+        <FormControl
+          variant="outlined"
+          sx={{ minWidth: 120, mt: { xs: 2, sm: 0 } }}
         >
-          <MenuItem value="INR">₹ INR</MenuItem>
-          <MenuItem value="USD">$ USD</MenuItem>
-          <MenuItem value="EUR">€ EUR</MenuItem>
-        </Select>
-      </FormControl> */}
-    </div>
+          <Select
+            name="status"
+            value={formData.status || (company?.bactive ? "active" : "inactive")}
+            onChange={handleChange}
+            inputProps={{ "aria-label": "Account Status" }}
+            size="small"
+          >
+            <MenuItem value="active">Active</MenuItem>
+            <MenuItem value="inactive">Inactive</MenuItem>
+            <MenuItem value="trial">Trial</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
 
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-      <Box>
-        <Typography variant="subtitle1" className="font-semibold text-gray-800">
-          Account Status
-        </Typography>
-        <Typography variant="body2" className="text-gray-500 mt-1">
-          Define the current state of the admin account.
-        </Typography>
-      </Box>
-      <FormControl
-        variant="outlined"
-        sx={{ minWidth: 120, mt: { xs: 2, sm: 0 } }}
-      >
-        <Select
-          name="status"
-          value={formData.status || "active"} // Default to active if not set
-          onChange={handleChange}
-          inputProps={{ "aria-label": "Account Status" }}
-          size="small"
-        >
-          <MenuItem value="active">Active</MenuItem>
-          <MenuItem value="inactive">Inactive</MenuItem>
-          <MenuItem value="trial">Trial</MenuItem>
-        </Select>
-      </FormControl>
-    </div>
-      <div> {console.log("The settings are:", settings)}
-      <ToggleSection
-        label="DCRM"
-        status={localSettings.DCRM}
-        name="DCRM"
-       companyId={settings?.companyId}
-      />
-      {/* <ToggleSection
-        label="Poster generator"
-        status={localSettings.PosterGenerator}
-        name="PosterGenerator"
-        companyId={settings?.companyId}
-      /> */}
-      {/* <ToggleSection
-        label="Reminder"
-        status={localSettings.Reminder}
-        name="Reminder"
-        companyId={settings?.companyId}
-      />
-      <ToggleSection
-        label="Website lead tab"
-        status={localSettings.WebsiteLead}
-        name="WebsiteLead"
-        companyId={settings?.companyId}
-      />
-      <ToggleSection
-        label="Import"
-        status={localSettings.Import}
-        name="Import"
-        companyId={settings?.companyId}
-      />
-      <ToggleSection
-        label="Export"
-        status={localSettings.Export}
-        name="Export"
-        companyId={settings?.companyId}
-      />
-      <ToggleSection
-        label="File attachment"
-        status={localSettings.FileAttachment}
-        name="FileAttachment"
-        companyId={settings?.companyId}
-      />
-      <ToggleSection
-        label="Email"
-        status={localSettings.Email}
-        name="Email"
-        companyId={settings?.companyId}
-      /> */}
+      <div>
+        <ToggleSection
+          label="DCRM"
+          status={localSettings.DCRM}
+          name="DCRM"
+          companyId={company?.iCompany_id}
+        />
+        
+        {/* Collapsible Reports */}
+        <Collapsible title="Report" className="mt-5">
+          <ToggleSection
+            label="Lead lost"
+            status={localSettings?.Reports?.LostLeadReport}
+            name="LostLeadReport"
+            sub_name="Reports"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Sales by stage"
+            status={localSettings.Reports?.SalesStageReport}
+            name="SalesStageReport"
+            sub_name="Reports"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Lead by territory"
+            status={localSettings.Reports?.TerritoryLeadReport}
+            name="TerritoryLeadReport"
+            sub_name="Reports"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Lead conversion"
+            status={localSettings.Reports?.LeadConversionReport}
+            name="LeadConversionReport"
+            sub_name="Reports"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Lead owner activity"
+            status={localSettings.Reports?.LeadOwnerActivityReport}
+            name="LeadOwnerActivityReport"
+            sub_name="Reports"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Prospects lost lead"
+            status={localSettings.Reports?.ProspectsLostLeadsReport}
+            name="ProspectsLostLeadsReport"
+            sub_name="Reports"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="First response time opportunity"
+            status={localSettings.Reports?.FirstResponseTimeOppurtunityReport}
+            name="FirstResponseTimeOppurtunityReport"
+            sub_name="Reports"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Company Overall report"
+            status={localSettings.Reports?.CompanyOverallReport}
+            name="CompanyOverallReport"
+            sub_name="Reports"
+            companyId={company?.iCompany_id}
+          />
+        </Collapsible>
 
-      {/* Collapsible Reports */}
-      <Collapsible title="Report" className="mt-5">
-        <ToggleSection
-          label="Lead lost"
-          status={localSettings?.Reports?.LostLeadReport}
-          name="LostLeadReport"
-          sub_name="Reports"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Sales by stage"
-          status={localSettings.Reports?.SalesStageReport}
-          name="SalesStageReport"
-          sub_name="Reports"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Lead by territory"
-          status={localSettings.Reports?.TerritoryLeadReport}
-          name="TerritoryLeadReport"
-          sub_name="Reports"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Lead conversion"
-          status={localSettings.Reports?.LeadConversionReport}
-          name="LeadConversionReport"
-          sub_name="Reports"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Lead owner activity"
-          status={localSettings.Reports?.LeadOwnerActivityReport}
-          name="LeadOwnerActivityReport"
-          sub_name="Reports"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Prospects lost lead"
-          status={localSettings.Reports?.ProspectsLostLeadsReport}
-          name="ProspectsLostLeadsReport"
-          sub_name="Reports"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="First response time opportunity"
-          status={localSettings.Reports?.FirstResponseTimeOppurtunityReport}
-          name="FirstResponseTimeOppurtunityReport"
-          sub_name="Reports"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Company Overall report"
-          status={localSettings.Reports?.CompanyOverallReport}
-          name="CompanyOverallReport"
-          sub_name="Reports"
-          companyId={settings?.companyId}
-        />
-      </Collapsible>
-
-      {/* Collapsible Masters */}
-      <Collapsible title="Master" className="mt-5">
-        <ToggleSection
-          label="Status master"
-          status={localSettings.Masters?.StatusMaster}
-          name="StatusMaster"
-          sub_name="Masters"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Currency master"
-          status={localSettings.Masters?.CurrencyMaster}
-          name="CurrencyMaster"
-          sub_name="Masters"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Potential master"
-          status={localSettings.Masters?.PotentialMaster}
-          name="PotentialMaster"
-          sub_name="Masters"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Industry master"
-          status={localSettings.Masters?.IndustryMaster}
-          name="IndustryMaster"
-          sub_name="Masters"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Lead source master"
-          status={localSettings.Masters?.SourceMaster}
-          name="SourceMaster"
-          sub_name="Masters"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Service master"
-          status={localSettings.Masters?.ServiceMaster}
-          name="ServiceMaster"
-          sub_name="Masters"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Proposal send mode master"
-          status={localSettings.Masters?.ProposalModeMaster}
-          name="ProposalModeMaster"
-          sub_name="Masters"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Email template master"
-          status={localSettings.Masters?.EmailTemplateMaster}
-          name="EmailTemplateMaster"
-          sub_name="Masters"
-          companyId={settings?.companyId}
-        />
-        <ToggleSection
-          label="Lead Lost reason"
-          status={localSettings.Masters?.LeasLostReasonMaster}
-          name="LeasLostReasonMaster"
-          sub_name="Masters"
-          companyId={settings?.companyId}
-        />
-      </Collapsible>
-    </div>
-  </>
+        {/* Collapsible Masters */}
+        <Collapsible title="Master" className="mt-5">
+          <ToggleSection
+            label="Status master"
+            status={localSettings.Masters?.StatusMaster}
+            name="StatusMaster"
+            sub_name="Masters"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Currency master"
+            status={localSettings.Masters?.CurrencyMaster}
+            name="CurrencyMaster"
+            sub_name="Masters"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Potential master"
+            status={localSettings.Masters?.PotentialMaster}
+            name="PotentialMaster"
+            sub_name="Masters"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Industry master"
+            status={localSettings.Masters?.IndustryMaster}
+            name="IndustryMaster"
+            sub_name="Masters"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Lead source master"
+            status={localSettings.Masters?.SourceMaster}
+            name="SourceMaster"
+            sub_name="Masters"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Service master"
+            status={localSettings.Masters?.ServiceMaster}
+            name="ServiceMaster"
+            sub_name="Masters"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Proposal send mode master"
+            status={localSettings.Masters?.ProposalModeMaster}
+            name="ProposalModeMaster"
+            sub_name="Masters"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Email template master"
+            status={localSettings.Masters?.EmailTemplateMaster}
+            name="EmailTemplateMaster"
+            sub_name="Masters"
+            companyId={company?.iCompany_id}
+          />
+          <ToggleSection
+            label="Lead Lost reason"
+            status={localSettings.Masters?.LeasLostReasonMaster}
+            name="LeasLostReasonMaster"
+            sub_name="Masters"
+            companyId={company?.iCompany_id}
+          />
+        </Collapsible>
+      </div>
+    </>
   );
 }
 
@@ -436,7 +354,7 @@ const DefaultEmailAccountSection = () => {
   const commonTextFieldProps = {
     fullWidth: true,
     variant: "outlined",
-    size: "small", // Make text fields smaller
+    size: "small",
     sx: {
       '.MuiInputBase-input': { height: '24px', padding: '10px 14px' },
       '.MuiInputLabel-root': { transform: 'translate(14px, 10px) scale(1)' },
@@ -559,154 +477,6 @@ const DefaultEmailAccountSection = () => {
   );
 };
 
-// --- Sub-component: Enabled Modules Section ---
-// const EnabledModulesSection = () => {
-//   const [modules, setModules] = useState([
-//     {
-//       name: "Leads",
-//       description: "Manage potential customers before they convert into contacts or deals.",
-//     },
-//     {
-//       name: "Contacts",
-//       description: "Store individual contact details of clients, suppliers, or partners.",
-//     },
-//     {
-//       name: "Deals",
-//       description: "Track ongoing sales activities and their progress toward closure.",
-//     },
-//     {
-//       name: "Support",
-//       description: "Record and resolve customer issues using a structured ticketing system.",
-//     },
-//   ]);
-
-//   const [openAddModuleDialog, setOpenAddModuleDialog] = useState(false);
-//   const [newModuleName, setNewModuleName] = useState('');
-//   const [newModuleDescription, setNewModuleDescription] = useState('');
-//   const [moduleNameError, setModuleNameError] = useState(false);
-//   const [moduleDescriptionError, setModuleDescriptionError] = useState(false);
-
-//   const handleOpenAddModuleDialog = () => {
-//     setNewModuleName('');
-//     setNewModuleDescription('');
-//     setModuleNameError(false);
-//     setModuleDescriptionError(false);
-//     setOpenAddModuleDialog(true);
-//   };
-
-//   const handleCloseAddModuleDialog = () => {
-//     setOpenAddModuleDialog(false);
-//   };
-
-//   const handleAddModule = () => {
-//     let hasError = false;
-
-//     if (newModuleName.trim() === '' || newModuleName.length > 25) {
-//       setModuleNameError(true);
-//       hasError = true;
-//     } else {
-//       setModuleNameError(false);
-//     }
-
-//     const wordCount = newModuleDescription.trim().split(/\s+/).filter(word => word.length > 0).length;
-//     if (wordCount > 100) {
-//       setModuleDescriptionError(true);
-//       hasError = true;
-//     } else {
-//       setModuleDescriptionError(false);
-//     }
-
-//     if (hasError) {
-//       return;
-//     }
-
-//     setModules(prevModules => [
-//       ...prevModules,
-//       { name: newModuleName.trim(), description: newModuleDescription.trim() }
-//     ]);
-//     handleCloseAddModuleDialog();
-//   };
-
-//   return (
-//     <>
-//       <Typography variant="h5" component="h2" className="font-bold text-gray-800 mb-6">
-//         Enabled Modules
-//       </Typography>
-//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
-//         {modules.map((module, index) => (
-//           <div
-//             key={index}
-//             className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm"
-//           >
-//             <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0 shadow-md">
-//               ✓
-//             </div>
-//             <div>
-//               <Typography variant="subtitle1" className="font-semibold text-gray-800">
-//                 {module.name}
-//               </Typography>
-//               <Typography variant="body2" className="text-gray-600 mt-1">
-//                 {module.description}
-//               </Typography>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-
-//       {/* Add New Module Dialog */}
-//       <Dialog open={openAddModuleDialog} onClose={handleCloseAddModuleDialog} fullWidth maxWidth="sm">
-//         <DialogTitle className="text-2xl font-bold text-center text-gray-1000 border-b pb-4">
-//           Add New Module
-//         </DialogTitle>
-//         <DialogContent dividers>
-//           <Box sx={{ py: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
-//             <TextField
-//               autoFocus
-//               margin="dense"
-//               id="module-name"
-//               label={<span>Module Name <span className="text-red-500">*</span></span>}
-//               type="text"
-//               fullWidth
-//               variant="outlined"
-//               value={newModuleName}
-//               onChange={(e) => setNewModuleName(e.target.value)}
-//               inputProps={{ maxLength: 25 }}
-//               error={moduleNameError}
-//               helperText={moduleNameError ? "Module Name is mandatory and must be 25 characters or less." : `Characters: ${newModuleName.length}/25`}
-//             />
-//             <TextField
-//               margin="dense"
-//               id="module-description"
-//               label="Description"
-//               type="text"
-//               fullWidth
-//               multiline
-//               rows={4}
-//               variant="outlined"
-//               value={newModuleDescription}
-//               onChange={(e) => setNewModuleDescription(e.target.value)}
-//               error={moduleDescriptionError}
-//               helperText={
-//                 moduleDescriptionError
-//                   ? `Description must be 100 words or less. Current: ${newModuleDescription.trim().split(/\s+/).filter(word => word.length > 0).length} words.`
-//                   : `Words: ${newModuleDescription.trim().split(/\s+/).filter(word => word.length > 0).length}/100`
-//               }
-//             />
-//           </Box>
-//         </DialogContent>
-//         <DialogActions sx={{ p: 2 }}>
-//           <Button onClick={handleCloseAddModuleDialog} color="primary" variant="outlined">
-//             Cancel
-//           </Button>
-//           <Button onClick={handleAddModule} color="primary" variant="contained" sx={{ bgcolor: '#2563EB', '&:hover': { bgcolor: '#1D4ED8' } }}>
-//             Add Module
-//           </Button>
-//         </DialogActions>
-//       </Dialog>
-//     </>
-//   );
-// };
-
 // --- Main Component: GeneralSettingsTab ---
 const GeneralSettingsTab = ({
   company,
@@ -714,35 +484,83 @@ const GeneralSettingsTab = ({
   handleCloseCompanyStatusDialog,
   handleToggleCompanyStatus,
 }) => {
-  // State for General Settings fields (currency and status)
+  // State for General Settings fields
   const [generalSettingsFormData, setGeneralSettingsFormData] = useState({
-    currency: 'INR', // Default value
-    status: 'active', // Default value
+    status: company?.bactive ? "active" : "inactive",
   });
 
-  const handleGeneralSettingsChange = useCallback((e) => {
+  const handleGeneralSettingsChange = useCallback(async (e) => {
     const { name, value } = e.target;
+    
+    // Update local state immediately for better UX
     setGeneralSettingsFormData(prevData => ({
       ...prevData,
       [name]: value,
     }));
-  }, []);
+
+    // Update company status via API when dropdown changes
+    if (name === 'status' && company?.iCompany_id) {
+      try {
+        // CORRECTED: Proper mapping between dropdown values and bactive
+        let bactive;
+        if (value === "active") {
+          bactive = true;
+        } else if (value === "inactive") {
+          bactive = false;
+        } else if (value === "trial") {
+          // For trial, you can decide what to set - here I'm setting it to active
+          bactive = true;
+        }
+
+        console.log(`Updating company ${company.iCompany_id} status:`, {
+          dropdownValue: value,
+          bactive: bactive
+        });
+        
+        // Prepare data for API call
+        const updateData = {
+          bactive: bactive,
+          cCompany_name: company.cCompany_name,
+          // Include other required fields for your API
+        };
+
+        // Call API to update company status
+        const response = await companyModel.editCompany(updateData, company.iCompany_id);
+        console.log('✅ Company status updated successfully:', response);
+        
+        // Optional: Show success message or refresh data
+        // You can add a toast notification here
+        
+      } catch (error) {
+        console.error('❌ Failed to update company status:', error);
+        
+        // Revert the local state if API call fails
+        setGeneralSettingsFormData(prevData => ({
+          ...prevData,
+          [name]: company?.bactive ? "active" : "inactive"
+        }));
+        
+        // Optional: Show error message to user
+        // alert('Failed to update company status. Please try again.');
+      }
+    }
+  }, [company]);
+
   const companySettings = company?.companySettings;
-  console.log('The company details are:', companySettings);
   
   return (
     <Box className="space-y-8">
       <GeneralSettingsSection
         formData={generalSettingsFormData}
         handleChange={handleGeneralSettingsChange}
-        settings = {companySettings}
+        settings={companySettings}
+        company={company}
       />
       <Divider sx={{ my: 4 }} />
       <DefaultEmailAccountSection />
       <Divider sx={{ my: 4 }} />
-      {/* <EnabledModulesSection /> */}
 
-      {/* Company Status Confirmation Dialog (can be a separate component if more complex) */}
+      {/* Company Status Confirmation Dialog (if still needed for other actions) */}
       <Dialog open={openCompanyStatusDialog} onClose={handleCloseCompanyStatusDialog}>
         <DialogTitle className="text-xl font-bold text-gray-900">
           Confirm Company {company?.bactive ? "Deactivation" : "Activation"}

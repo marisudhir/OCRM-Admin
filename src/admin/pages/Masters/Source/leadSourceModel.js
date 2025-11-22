@@ -36,5 +36,5 @@ export const deleteLeadSource = async (sourceId) => {
   const cleanSourceId = String(sourceId).replace(/[^0-9]/g, '');
   console.log('Cleaned source ID:', cleanSourceId);
   
-  return await ApiHelper.dective(cleanSourceId, ENDPOINTS.LEAD_SOURCE);
+  return await ApiHelper.deActive(cleanSourceId, ENDPOINTS.LEAD_SOURCE);
 };
