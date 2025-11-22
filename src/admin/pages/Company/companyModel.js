@@ -14,7 +14,6 @@ export const assignAttributeToUser = async (userId, attributeId) => {
   }
 
   try {
-    // console.log('📤 POST: Assigning attribute to user', { userId, attributeId });
     
     const response = await axios.post(
       fullApiUrl,
@@ -33,7 +32,7 @@ export const assignAttributeToUser = async (userId, attributeId) => {
 
     return response.data;
   } catch (err) {
-    console.error(`❌ POST failed for ${fullApiUrl}:`, err);
+    console.error(` POST failed for ${fullApiUrl}:`, err);
     throw err;
   }
 };
@@ -49,7 +48,7 @@ export const updateAttributeStatus = async (iuaId, status) => {
   }
 
   try {
-    // console.log('📤 PUT: Updating attribute status', { iuaId, status });
+    // console.log('PUT: Updating attribute status', { iuaId, status });
     
     const response = await axios.put(
       fullApiUrl,
@@ -64,10 +63,10 @@ export const updateAttributeStatus = async (iuaId, status) => {
       }
     );
     
-    // console.log('✅ PUT Success:', response.data);
+    // console.log('PUT Success:', response.data);
     return response.data;
   } catch (err) {
-    console.error(`❌ PUT failed for ${fullApiUrl}:`, err);
+    console.error(` PUT failed for ${fullApiUrl}:`, err);
     throw err;
   }
 };
@@ -76,13 +75,7 @@ export const updateAttributeStatus = async (iuaId, status) => {
 export const applyUserAttributeChanges = async (targetUserId, stagedAttributes, existingUserAttributes) => {
   const promises = [];
 
-  // console.log('🔄 Applying attribute changes:', {
-  //   userId: targetUserId,
-  //   stagedAttributes,
-  //   existingUserAttributes: existingUserAttributes.length
-  // });
 
-  // Create a map of existing user attributes for quick lookup
   const existingAttrMap = new Map();
   existingUserAttributes.forEach(attr => {
     existingAttrMap.set(attr.iattribute_id, attr);
@@ -95,26 +88,26 @@ export const applyUserAttributeChanges = async (targetUserId, stagedAttributes, 
     if (existingAttr && existingAttr.iua_id) {
       // Attribute already assigned to user - UPDATE (PUT) if status changed
       if (existingAttr.bactive !== isChecked) {
-        // console.log(`🔄 UPDATE: Attribute ${attrId} from ${existingAttr.bactive} to ${isChecked}`);
+        // console.log(` UPDATE: Attribute ${attrId} from ${existingAttr.bactive} to ${isChecked}`);
         promises.push(updateAttributeStatus(existingAttr.iua_id, isChecked));
       }
     } else {
       // Attribute not assigned to user - CREATE (POST) if checked
       if (isChecked) {
-        // console.log(`🆕 CREATE: New attribute ${attrId} for user`);
+        // console.log(` CREATE: New attribute ${attrId} for user`);
         promises.push(assignAttributeToUser(targetUserId, attrId));
       }
     }
   }
   
-  // console.log(`📤 Sending ${promises.length} API requests`);
+  // console.log(` Sending ${promises.length} API requests`);
   return Promise.all(promises);
 };
 
 // GET: All available attributes
 export const getAllAttributes = async (companyId) => {
   try {
-    // console.log("🔄 GET: Fetching all attributes for company:", companyId);
+    // console.log(" GET: Fetching all attributes for company:", companyId);
     
     let endpoint = ENDPOINTS.GET_ATTRIBUTE;
     if (companyId) {
@@ -122,11 +115,11 @@ export const getAllAttributes = async (companyId) => {
     }
     
     const response = await ApiHelper.getAll(endpoint);
-    // console.log("✅ GET Attributes Success:", response.data);
+    // console.log(" GET Attributes Success:", response.data);
     
     return response.data.attribuites || [];
   } catch (err) {
-    console.error("❌ GET: Failed to fetch all attributes:", err);
+    console.error(" GET: Failed to fetch all attributes:", err);
     throw err;
   }
 };
@@ -134,10 +127,10 @@ export const getAllAttributes = async (companyId) => {
 // GET: User's assigned attributes
 export const getUserAttributes = async (userId) => {
   try {
-    // console.log("🔄 GET: Fetching attributes for user:", userId);
+    // console.log("GET: Fetching attributes for user:", userId);
     
     const response = await ApiHelper.getById(userId, ENDPOINTS.GET_ATTRIBUTE_USER_ID);
-    // console.log("✅ GET User Attributes Success:", response.data);
+    // console.log("GET User Attributes Success:", response.data);
     
     // Handle different response structures
     if (response.data && response.data.error === "No attribute found for this user ID !") {
@@ -153,7 +146,7 @@ export const getUserAttributes = async (userId) => {
       return response.data;
     }
     
-    console.warn("⚠️ Unexpected user attributes response format:", response.data);
+    console.warn("Unexpected user attributes response format:", response.data);
     return [];
 
   } catch (err) {
@@ -181,8 +174,12 @@ export const changeUserSettingsStatus = async (settingsData) => {
 export const getAllCompantData = async () => {
   console.info("all company data api called");
   const res = await ApiHelper.getAll(ENDPOINTS.COMPANIES);
+    console.info("all company data api called", res.data);
   return res.data;
+  
 };
+
+
 
 export const getAuditLogs = async (company_id) => {
   const res = await ApiHelper.getAll(ENDPOINTS.AUDIT_LOGS(company_id));
@@ -283,6 +280,28 @@ export const getBussinessType = async () => {
     throw new Error(data.message);
   } catch (error) {
     console.error("Failed to fetch business types:", error);
+    throw error;
+  }
+};
+
+export const getAllCurrencies = async () => {
+  try {
+    const response = await ApiHelper.getAll(ENDPOINTS.CURRENCY);
+    console.log("Raw API currencies response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch currencies:", error);
+    throw error;
+  }
+};
+
+// GET: All pricing plans
+export const getAllPricingPlans = async () => {
+  try {
+    const response = await ApiHelper.getAll(ENDPOINTS.PLAN);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch pricing plans:", error);
     throw error;
   }
 };

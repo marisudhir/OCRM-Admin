@@ -22,7 +22,7 @@ import EditIcon from '@mui/icons-material/Edit';
 
 import ToggleButton from '../../components/ToggleSwitch'
 import Collapsible from '../../components/Collipsable'
-import { useCompanyController } from './companyController';
+import { useCompanyController , fetchAllCompanyData } from './companyController';
 
 // --- Constants & Utilities ---
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -77,6 +77,8 @@ const GeneralSettingsSection = ({ formData, handleChange, settings }) => {
       companyId
     );
 
+    
+
     const handleToggleChange = (name, status, data) => {
       setLocalSettings((prev) => {
         // copy previous state
@@ -116,15 +118,15 @@ const GeneralSettingsSection = ({ formData, handleChange, settings }) => {
   <>
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
       <Box>
-        <Typography variant="subtitle1" className="font-semibold text-gray-800">
+        {/* <Typography variant="subtitle1" className="font-semibold text-gray-800">
           Preferred Currency
         </Typography>
         <Typography variant="body2" className="text-gray-500 mt-1">
           All pricing and reports will use this currency.
-        </Typography>
+        </Typography> */}
       </Box>
 
-      <FormControl
+      {/* <FormControl
         variant="outlined"
         sx={{ minWidth: 120, mt: { xs: 2, sm: 0 } }}
       >
@@ -139,7 +141,7 @@ const GeneralSettingsSection = ({ formData, handleChange, settings }) => {
           <MenuItem value="USD">$ USD</MenuItem>
           <MenuItem value="EUR">€ EUR</MenuItem>
         </Select>
-      </FormControl>
+      </FormControl> */}
     </div>
 
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -175,13 +177,13 @@ const GeneralSettingsSection = ({ formData, handleChange, settings }) => {
         name="DCRM"
        companyId={settings?.companyId}
       />
-      <ToggleSection
+      {/* <ToggleSection
         label="Poster generator"
         status={localSettings.PosterGenerator}
         name="PosterGenerator"
         companyId={settings?.companyId}
-      />
-      <ToggleSection
+      /> */}
+      {/* <ToggleSection
         label="Reminder"
         status={localSettings.Reminder}
         name="Reminder"
@@ -216,7 +218,7 @@ const GeneralSettingsSection = ({ formData, handleChange, settings }) => {
         status={localSettings.Email}
         name="Email"
         companyId={settings?.companyId}
-      />
+      /> */}
 
       {/* Collapsible Reports */}
       <Collapsible title="Report" className="mt-5">
@@ -558,152 +560,152 @@ const DefaultEmailAccountSection = () => {
 };
 
 // --- Sub-component: Enabled Modules Section ---
-const EnabledModulesSection = () => {
-  const [modules, setModules] = useState([
-    {
-      name: "Leads",
-      description: "Manage potential customers before they convert into contacts or deals.",
-    },
-    {
-      name: "Contacts",
-      description: "Store individual contact details of clients, suppliers, or partners.",
-    },
-    {
-      name: "Deals",
-      description: "Track ongoing sales activities and their progress toward closure.",
-    },
-    {
-      name: "Support",
-      description: "Record and resolve customer issues using a structured ticketing system.",
-    },
-  ]);
+// const EnabledModulesSection = () => {
+//   const [modules, setModules] = useState([
+//     {
+//       name: "Leads",
+//       description: "Manage potential customers before they convert into contacts or deals.",
+//     },
+//     {
+//       name: "Contacts",
+//       description: "Store individual contact details of clients, suppliers, or partners.",
+//     },
+//     {
+//       name: "Deals",
+//       description: "Track ongoing sales activities and their progress toward closure.",
+//     },
+//     {
+//       name: "Support",
+//       description: "Record and resolve customer issues using a structured ticketing system.",
+//     },
+//   ]);
 
-  const [openAddModuleDialog, setOpenAddModuleDialog] = useState(false);
-  const [newModuleName, setNewModuleName] = useState('');
-  const [newModuleDescription, setNewModuleDescription] = useState('');
-  const [moduleNameError, setModuleNameError] = useState(false);
-  const [moduleDescriptionError, setModuleDescriptionError] = useState(false);
+//   const [openAddModuleDialog, setOpenAddModuleDialog] = useState(false);
+//   const [newModuleName, setNewModuleName] = useState('');
+//   const [newModuleDescription, setNewModuleDescription] = useState('');
+//   const [moduleNameError, setModuleNameError] = useState(false);
+//   const [moduleDescriptionError, setModuleDescriptionError] = useState(false);
 
-  const handleOpenAddModuleDialog = () => {
-    setNewModuleName('');
-    setNewModuleDescription('');
-    setModuleNameError(false);
-    setModuleDescriptionError(false);
-    setOpenAddModuleDialog(true);
-  };
+//   const handleOpenAddModuleDialog = () => {
+//     setNewModuleName('');
+//     setNewModuleDescription('');
+//     setModuleNameError(false);
+//     setModuleDescriptionError(false);
+//     setOpenAddModuleDialog(true);
+//   };
 
-  const handleCloseAddModuleDialog = () => {
-    setOpenAddModuleDialog(false);
-  };
+//   const handleCloseAddModuleDialog = () => {
+//     setOpenAddModuleDialog(false);
+//   };
 
-  const handleAddModule = () => {
-    let hasError = false;
+//   const handleAddModule = () => {
+//     let hasError = false;
 
-    if (newModuleName.trim() === '' || newModuleName.length > 25) {
-      setModuleNameError(true);
-      hasError = true;
-    } else {
-      setModuleNameError(false);
-    }
+//     if (newModuleName.trim() === '' || newModuleName.length > 25) {
+//       setModuleNameError(true);
+//       hasError = true;
+//     } else {
+//       setModuleNameError(false);
+//     }
 
-    const wordCount = newModuleDescription.trim().split(/\s+/).filter(word => word.length > 0).length;
-    if (wordCount > 100) {
-      setModuleDescriptionError(true);
-      hasError = true;
-    } else {
-      setModuleDescriptionError(false);
-    }
+//     const wordCount = newModuleDescription.trim().split(/\s+/).filter(word => word.length > 0).length;
+//     if (wordCount > 100) {
+//       setModuleDescriptionError(true);
+//       hasError = true;
+//     } else {
+//       setModuleDescriptionError(false);
+//     }
 
-    if (hasError) {
-      return;
-    }
+//     if (hasError) {
+//       return;
+//     }
 
-    setModules(prevModules => [
-      ...prevModules,
-      { name: newModuleName.trim(), description: newModuleDescription.trim() }
-    ]);
-    handleCloseAddModuleDialog();
-  };
+//     setModules(prevModules => [
+//       ...prevModules,
+//       { name: newModuleName.trim(), description: newModuleDescription.trim() }
+//     ]);
+//     handleCloseAddModuleDialog();
+//   };
 
-  return (
-    <>
-      <Typography variant="h5" component="h2" className="font-bold text-gray-800 mb-6">
-        Enabled Modules
-      </Typography>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
-        {modules.map((module, index) => (
-          <div
-            key={index}
-            className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm"
-          >
-            <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0 shadow-md">
-              ✓
-            </div>
-            <div>
-              <Typography variant="subtitle1" className="font-semibold text-gray-800">
-                {module.name}
-              </Typography>
-              <Typography variant="body2" className="text-gray-600 mt-1">
-                {module.description}
-              </Typography>
-            </div>
-          </div>
-        ))}
-      </div>
+//   return (
+//     <>
+//       <Typography variant="h5" component="h2" className="font-bold text-gray-800 mb-6">
+//         Enabled Modules
+//       </Typography>
+//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+//         {modules.map((module, index) => (
+//           <div
+//             key={index}
+//             className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm"
+//           >
+//             <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0 shadow-md">
+//               ✓
+//             </div>
+//             <div>
+//               <Typography variant="subtitle1" className="font-semibold text-gray-800">
+//                 {module.name}
+//               </Typography>
+//               <Typography variant="body2" className="text-gray-600 mt-1">
+//                 {module.description}
+//               </Typography>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
 
-      {/* Add New Module Dialog */}
-      <Dialog open={openAddModuleDialog} onClose={handleCloseAddModuleDialog} fullWidth maxWidth="sm">
-        <DialogTitle className="text-2xl font-bold text-center text-gray-1000 border-b pb-4">
-          Add New Module
-        </DialogTitle>
-        <DialogContent dividers>
-          <Box sx={{ py: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="module-name"
-              label={<span>Module Name <span className="text-red-500">*</span></span>}
-              type="text"
-              fullWidth
-              variant="outlined"
-              value={newModuleName}
-              onChange={(e) => setNewModuleName(e.target.value)}
-              inputProps={{ maxLength: 25 }}
-              error={moduleNameError}
-              helperText={moduleNameError ? "Module Name is mandatory and must be 25 characters or less." : `Characters: ${newModuleName.length}/25`}
-            />
-            <TextField
-              margin="dense"
-              id="module-description"
-              label="Description"
-              type="text"
-              fullWidth
-              multiline
-              rows={4}
-              variant="outlined"
-              value={newModuleDescription}
-              onChange={(e) => setNewModuleDescription(e.target.value)}
-              error={moduleDescriptionError}
-              helperText={
-                moduleDescriptionError
-                  ? `Description must be 100 words or less. Current: ${newModuleDescription.trim().split(/\s+/).filter(word => word.length > 0).length} words.`
-                  : `Words: ${newModuleDescription.trim().split(/\s+/).filter(word => word.length > 0).length}/100`
-              }
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={handleCloseAddModuleDialog} color="primary" variant="outlined">
-            Cancel
-          </Button>
-          <Button onClick={handleAddModule} color="primary" variant="contained" sx={{ bgcolor: '#2563EB', '&:hover': { bgcolor: '#1D4ED8' } }}>
-            Add Module
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
-  );
-};
+//       {/* Add New Module Dialog */}
+//       <Dialog open={openAddModuleDialog} onClose={handleCloseAddModuleDialog} fullWidth maxWidth="sm">
+//         <DialogTitle className="text-2xl font-bold text-center text-gray-1000 border-b pb-4">
+//           Add New Module
+//         </DialogTitle>
+//         <DialogContent dividers>
+//           <Box sx={{ py: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
+//             <TextField
+//               autoFocus
+//               margin="dense"
+//               id="module-name"
+//               label={<span>Module Name <span className="text-red-500">*</span></span>}
+//               type="text"
+//               fullWidth
+//               variant="outlined"
+//               value={newModuleName}
+//               onChange={(e) => setNewModuleName(e.target.value)}
+//               inputProps={{ maxLength: 25 }}
+//               error={moduleNameError}
+//               helperText={moduleNameError ? "Module Name is mandatory and must be 25 characters or less." : `Characters: ${newModuleName.length}/25`}
+//             />
+//             <TextField
+//               margin="dense"
+//               id="module-description"
+//               label="Description"
+//               type="text"
+//               fullWidth
+//               multiline
+//               rows={4}
+//               variant="outlined"
+//               value={newModuleDescription}
+//               onChange={(e) => setNewModuleDescription(e.target.value)}
+//               error={moduleDescriptionError}
+//               helperText={
+//                 moduleDescriptionError
+//                   ? `Description must be 100 words or less. Current: ${newModuleDescription.trim().split(/\s+/).filter(word => word.length > 0).length} words.`
+//                   : `Words: ${newModuleDescription.trim().split(/\s+/).filter(word => word.length > 0).length}/100`
+//               }
+//             />
+//           </Box>
+//         </DialogContent>
+//         <DialogActions sx={{ p: 2 }}>
+//           <Button onClick={handleCloseAddModuleDialog} color="primary" variant="outlined">
+//             Cancel
+//           </Button>
+//           <Button onClick={handleAddModule} color="primary" variant="contained" sx={{ bgcolor: '#2563EB', '&:hover': { bgcolor: '#1D4ED8' } }}>
+//             Add Module
+//           </Button>
+//         </DialogActions>
+//       </Dialog>
+//     </>
+//   );
+// };
 
 // --- Main Component: GeneralSettingsTab ---
 const GeneralSettingsTab = ({
@@ -738,7 +740,7 @@ const GeneralSettingsTab = ({
       <Divider sx={{ my: 4 }} />
       <DefaultEmailAccountSection />
       <Divider sx={{ my: 4 }} />
-      <EnabledModulesSection />
+      {/* <EnabledModulesSection /> */}
 
       {/* Company Status Confirmation Dialog (can be a separate component if more complex) */}
       <Dialog open={openCompanyStatusDialog} onClose={handleCloseCompanyStatusDialog}>

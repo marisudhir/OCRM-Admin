@@ -130,30 +130,31 @@ export function LeadLostReason({ company = "" }) {
         </div>
 
         {/* MODAL */}
-        {showForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
-            <div className="relative bg-white rounded-xl p-6 shadow-xl w-full max-w-md mx-4">
-              <button
+   {/* MODAL */}
+{showForm && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
+        <div className="relative bg-white rounded-xl p-6 shadow-xl w-full max-w-md mx-4">
+            <button
                 onClick={() => {
-                  setShowForm(false);
-                  setEditItem(null);
+                    setShowForm(false);
+                    setEditItem(null);
                 }}
                 className="absolute top-3 right-3 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 transition-colors"
-              >
+            >
                 <CloseIcon fontSize="small" />
-              </button>
+            </button>
 
-              <LostReasonForm
+            <LostReasonForm
                 editData={editItem}
-                onSuccess={handleSubmit}
-                onClose={() => {
-                  setShowForm(false);
-                  setEditItem(null);
+                onSubmit={handleSubmit}  // Changed from onSuccess to onSubmit
+                onCancel={() => {        // Changed from onClose to onCancel
+                    setShowForm(false);
+                    setEditItem(null);
                 }}
-              />
-            </div>
-          </div>
-        )}
+            />
+        </div>
+    </div>
+)}
 
         {/* Error Display */}
         {error && (

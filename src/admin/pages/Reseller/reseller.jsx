@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom'; // Keep Link for general use if needed 
 import formatDate from '../../utils/formatDate';
 import Card from '../../components/card'; // Ensure this path is correct
 import { Line, Pie } from 'react-chartjs-2'; // Combine imports for brevity
+import { useDashboardController } from '../Dashboard/dashboardController';
+
 
 import {
   Chart as ChartJS,
@@ -151,6 +153,13 @@ const Reseller = () => {
     ],
   };
 
+
+    const { dashboardData } = useDashboardController();
+
+    // console.log("dashboard, ", dashboardData)
+    // const resellerList = dashboardData?.resellerRanking;
+  
+    
   const lineOptions = {
     responsive: true,
     maintainAspectRatio: false, // Allow height control

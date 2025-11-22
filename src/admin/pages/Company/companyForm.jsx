@@ -538,7 +538,7 @@ const CompanyForm = ({ onClose, onSuccess }) => {
         )}
       </form>
     </div>
-  );
+  ); 
 };
 
 export default CompanyForm;

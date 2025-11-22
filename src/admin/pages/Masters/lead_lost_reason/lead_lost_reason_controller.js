@@ -36,41 +36,38 @@ export function useLeadLostReason() {
   };
 
   // CREATE LEAD LOST REASON - IMPROVED
-  const createLeadLostReasonController = async (reasonText) => {
+const createLeadLostReasonController = async (reasonText) => {
     try {
-      setError(null);
-      setMessage(null);
-      
-      // Include company ID if one is selected
-      const payload = { 
-        lostReason: typeof reasonText === 'string' ? reasonText : reasonText.lostReason || reasonText.reason 
-      };
+        setError(null);
+        setMessage(null);
+        
+        // The API expects just the reason text in the format { "lostReason": "text" }
+        const payload = { 
+            lostReason: reasonText 
+        };
 
-      // Add company ID to payload if a company is selected
-      if (currentCompanyId) {
-        payload.icompany_id = parseInt(currentCompanyId);
-      }
+        console.log("Create payload:", payload);
 
-      console.log("Create payload:", payload);
+        const result = await leadLostReasonModel.createLeadLostReason(payload);
+        console.log("Create API response:", result);
 
-      const result = await leadLostReasonModel.createLeadLostReason(payload);
+        if (result?.success === false || result?.Message?.includes("Error") || result?.Message?.includes("Failed")) {
+            setError(result?.Message || "Failed to create reason");
+            return false;
+        }
 
-      if (result?.success === false || result?.Message?.includes("Error") || result?.Message?.includes("Failed")) {
-        setError(result?.Message || "Failed to create reason");
-        return false;
-      }
+        setMessage(result?.Message || "Reason created successfully");
 
-      setMessage(result?.Message || "Reason created successfully");
+        // Refresh the list with current company filter
+        await getLeadLostReasonByCompanyId(currentCompanyId);
 
-      // Refresh the list with current company filter
-      await getLeadLostReasonByCompanyId(currentCompanyId);
-
-      return true;
+        return true;
     } catch (err) {
-      setError(err.message);
-      return false;
+        console.error("Create error:", err);
+        setError(err.message);
+        return false;
     }
-  };
+};
 
   // UPDATE LEAD LOST REASON
   const updateLeadLostReasonController = async (id, reqBody) => {

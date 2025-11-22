@@ -273,8 +273,10 @@ const CompanyProfile = () => {
     fetchAdditionalData,
     currencies,
     bussiness,
-    plan,
+    pricingPlans,
     storageDetailsController,
+    fetchAllPricingPlans,
+    fetchAllCurrencies,
     fetchBussinessType,
     storageDetails
   } = useCompanyController();
@@ -369,14 +371,22 @@ const handleOpenEditDialog = async (company) => {
     const results = await Promise.all([
       fetchAllCities(),
       fetchRoles(),
-      fetchBussinessType()
+      fetchBussinessType(),
+      fetchAllCurrencies(),    // Add this
+      fetchAllPricingPlans()   // Add this
     ]);
 
     console.log("✅ All form data loaded successfully");
     
-    // Extract business types from the result (fetchBussinessType is the third promise)
+    // Extract data from results
     const businessTypesResult = results[2]; 
+    const currenciesResult = results[3];
+    const pricingPlansResult = results[4];
+
     console.log("📊 Business types result:", businessTypesResult);
+    console.log("💰 Currencies result:", currenciesResult);
+    console.log("💰 Is currencies result array?", Array.isArray(currenciesResult));
+    console.log("📋 Pricing plans result:", pricingPlansResult);
 
     // Set the dialog-specific business types
     const loadedBusinessTypes = businessTypesResult || [];
@@ -387,7 +397,49 @@ const handleOpenEditDialog = async (company) => {
       biz => biz.id === company?.ibusiness_type
     ) || null;
 
+    // SAFELY find current currency object
+    let currentCurrency = null;
+    if (Array.isArray(currenciesResult)) {
+      currentCurrency = currenciesResult.find(
+        currency => currency.icurrency_id === company?.icurrency_id
+      ) || null;
+    } else {
+      console.warn("⚠️ currenciesResult is not an array, trying to extract array:", currenciesResult);
+      // Try different possible paths to extract the array
+      const currenciesArray = currenciesResult?.data?.data?.data || 
+                             currenciesResult?.data?.data || 
+                             currenciesResult?.data || 
+                             [];
+      if (Array.isArray(currenciesArray)) {
+        currentCurrency = currenciesArray.find(
+          currency => currency.icurrency_id === company?.icurrency_id
+        ) || null;
+      }
+    }
+
+    // SAFELY find current subscription plan object
+    let currentSubscriptionPlan = null;
+    if (Array.isArray(pricingPlansResult)) {
+      currentSubscriptionPlan = pricingPlansResult.find(
+        plan => plan.plan_id === company?.isubscription_plan
+      ) || null;
+    } else {
+      console.warn("⚠️ pricingPlansResult is not an array, trying to extract array:", pricingPlansResult);
+      // Try different possible paths to extract the array
+      const plansArray = pricingPlansResult?.data?.data || 
+                        pricingPlansResult?.data || 
+                        pricingPlansResult || 
+                        [];
+      if (Array.isArray(plansArray)) {
+        currentSubscriptionPlan = plansArray.find(
+          plan => plan.plan_id === company?.isubscription_plan
+        ) || null;
+      }
+    }
+
     console.log("🎯 Current business type found:", currentBusinessType);
+    console.log("🎯 Current currency found:", currentCurrency);
+    console.log("🎯 Current subscription plan found:", currentSubscriptionPlan);
 
     // Set edit company data
     setEditCompanyData({
@@ -415,9 +467,9 @@ const handleOpenEditDialog = async (company) => {
       bactive: company?.bactive !== undefined ? company.bactive : true,
       // Keep these for Autocomplete components
       city: company?.city || null,
-      currency: company?.currency || null,
+      currency: currentCurrency,
       business_type: currentBusinessType,
-      subscription_plan: company?.pricing_plan || null
+      subscription_plan: currentSubscriptionPlan
     });
 
     console.log("✅ Opening edit dialog");
@@ -705,7 +757,7 @@ const handleSaveEditedCompany = async () => {
             <Tab label={<span className="font-semibold text-gray-700 hover:text-blue-600">Users</span>} {...a11yProps(2)} />
             <Tab label={<span className="font-semibold text-gray-700 hover:text-blue-600">Masters</span>} {...a11yProps(3)} />
             <Tab label={<span className="font-semibold text-gray-700 hover:text-blue-600">Audit login</span>} {...a11yProps(4)} />
-            <Tab label={<span className="font-semibold text-gray-700 hover:text-blue-600">User Attribite Access</span>} {...a11yProps(4)} />
+            {/* <Tab label={<span className="font-semibold text-gray-700 hover:text-blue-600">User Attribite Access</span>} {...a11yProps(4)} /> */}
           </Tabs>
         </Box>
 
@@ -969,7 +1021,7 @@ const handleSaveEditedCompany = async () => {
 {/* Currency Autocomplete */}
 <Autocomplete 
   options={currencies || []} 
-  getOptionLabel={(option) => option.currency_code || ""} 
+  getOptionLabel={(option) => `${option.currency_code} - ${option.symbol}` || ""} 
   value={editCompanyData?.currency || null}
   onChange={(event, newValue) => { 
     setEditCompanyData((prev) => ({ 
@@ -1009,23 +1061,23 @@ const handleSaveEditedCompany = async () => {
   )} 
 />
 
-{/* Subscription Plan Autocomplete */}
-<Autocomplete 
-  options={plan || []} 
-  getOptionLabel={(option) => option.plan_name || ""} 
-  value={editCompanyData?.subscription_plan || null}
-  onChange={(event, newValue) => { 
-    setEditCompanyData((prev) => ({ 
-      ...prev, 
-      subscription_plan: newValue, 
-      isubscription_plan: newValue ? newValue.plan_id : "" 
-    })); 
-  }} 
-  isOptionEqualToValue={(option, value) => option.plan_id === value?.plan_id} 
-  renderInput={(params) => (
-    <TextField {...params} label="Subscription Plan" fullWidth variant="outlined" />
-  )} 
-/>
+{/* Subscription Plan Autocomplete - This should now work */}
+ <Autocomplete 
+    options={pricingPlans || []} 
+    getOptionLabel={(option) => option.plan_name || ""} 
+    value={editCompanyData?.subscription_plan || null}
+    onChange={(event, newValue) => { 
+      setEditCompanyData((prev) => ({ 
+        ...prev, 
+        subscription_plan: newValue, 
+        isubscription_plan: newValue ? newValue.plan_id : "" 
+      })); 
+    }} 
+    isOptionEqualToValue={(option, value) => option.plan_id === value?.plan_id} 
+    renderInput={(params) => (
+      <TextField {...params} label="Subscription Plan" fullWidth variant="outlined" />
+    )} 
+  />
 
             <TextField
               label="Reseller ID"

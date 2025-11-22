@@ -1,57 +1,73 @@
 import { ENDPOINTS } from '../../../api/ApiConstant';
 import * as ApiHelper from '../../../api/ApiHelper';
 
-// GET ALL LEAD LOST REASONS (for company dropdown filtering)
+// GET ALL LEAD LOST REASONS
 export async function getAllLeadLostReasons() {
-    const response = await ApiHelper.getAll(ENDPOINTS.COMPANY_LEAD_LOST_REASON);
+    const response = await ApiHelper.getAll(ENDPOINTS.LEAD_LOST_REASON); // Changed endpoint
     return response.data;
 }
 
 // GET LEAD LOST REASONS BY COMPANY ID - FIXED
 export async function getLeadLostReasonsByCompanyId(companyId) {
+    console.log("Fetching reasons for company ID:", companyId);
+    
     // If no company ID provided, get all reasons
     if (!companyId) {
-        const response = await ApiHelper.getById(ENDPOINTS.CREATE_LEAD_LOST_REASON);
+        console.log("No company ID provided, fetching all reasons");
+        const response = await ApiHelper.getAll(ENDPOINTS.LEAD_LOST_REASON);
         return response.data;
     }
     
     // If company ID provided, get reasons for that specific company
-    const response = await ApiHelper.getById(companyId, ENDPOINTS.COMPANY_LEAD_LOST_REASON);
+    const queryParams = { companyId: companyId };
+    const response = await ApiHelper.getWithQueryParam(
+        ENDPOINTS.LEAD_LOST_REASON,  // Use the same endpoint with query params
+        queryParams
+    );
+    
+    console.log("API Response for company:", response);
     return response.data;
 }
 
-// CREATE LEAD LOST REASON
+// CREATE LEAD LOST REASON - FIXED TO MATCH API
 export async function createLeadLostReason(reqData) {
-    const response = await ApiHelper.create(reqData, ENDPOINTS.CREATE_LEAD_LOST_REASON);
+    console.log("Creating lead lost reason:", reqData);
+    
+    // The API expects just { "lostReason": "text" }
+    const payload = {
+        lostReason: reqData.lostReason || reqData
+    };
+    
+    console.log("Final create payload:", payload);
+    const response = await ApiHelper.create(payload, ENDPOINTS.LEAD_LOST_REASON);
     return response.data;
 }
 
-// UPDATE LEAD LOST REASON - IMPROVED
+// UPDATE LEAD LOST REASON - FIXED TO MATCH API
 export async function updateLeadLostReason(id, reqData) {
     console.log("Update request - ID:", id, "Data:", reqData);
 
     let reasonText;
-    let companyId;
     
     if (typeof reqData === "string") {
         reasonText = reqData;
     } else if (typeof reqData === "object") {
         reasonText = reqData.lostReason || reqData.reason || reqData.lostReasonText || 
                     Object.values(reqData).find(val => typeof val === "string");
-        companyId = reqData.icompany_id;
     } else {
         reasonText = String(reqData);
     }
 
+    // API expects { "lostReason": "text", "lostReasonId": id }
     const payload = {
         lostReasonId: Number(id),
-        lostReason: reasonText,
-        icompany_id: companyId
+        lostReason: reasonText
     };
 
     console.log("Final update payload:", payload);
 
-    const response = await ApiHelper.updateHelper(
+    // Use editWithReqBody since it sends PUT request with request body
+    const response = await ApiHelper.editWithReqBody(
         ENDPOINTS.LEAD_LOST_REASON,
         payload
     );
@@ -59,8 +75,11 @@ export async function updateLeadLostReason(id, reqData) {
     return response.data;
 }
 
-// DELETE LEAD LOST REASON
+// DELETE LEAD LOST REASON - FIXED TO MATCH API
 export async function deleteLeadLostReason(id) {
+    console.log("Deleting reason ID:", id);
+    
+    // API expects query params: { lostReasonId: id, isActive: false }
     const params = {
         lostReasonId: Number(id),
         isActive: false
