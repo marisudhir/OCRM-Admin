@@ -31,17 +31,12 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { PieChart } from '@mui/x-charts/PieChart';
+// import { PieChart } from '@mui/x-charts/PieChart';
 
 import { useCompanyController } from "./companyController";
 import { useSharedController } from "../../api/shared/controller";
 import formatDate from "../../utils/formatDate";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, } from "@mui/material";
 import GeneralSettingsTab from "./GeneralSettingsTab";
 import CompanyUser from "./companyUser.jsx"
 import LeadStatus from "../Masters/Status/leadStauts.jsx";
@@ -820,7 +815,7 @@ const handleSaveEditedCompany = async () => {
             </div>
           </div>
           {/* {console.log("The company daaaaaaattaaaa is :", company)} */}
-          <PieChart
+          {/* <PieChart
             series={[
               {
                 data: [
@@ -831,7 +826,7 @@ const handleSaveEditedCompany = async () => {
             ]}
             width={200}
             height={200}
-          />
+          /> */}
 
 
 

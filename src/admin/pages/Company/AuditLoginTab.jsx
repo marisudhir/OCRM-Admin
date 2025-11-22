@@ -16,12 +16,17 @@ const AuditLoginTab = ({company_id}) => {
   const logsPerPage = 100;
 
   // In a real application, you'd fetch data here
- useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await fetchAuditLogs(company_id);
-        setAuditLogs(data);
-        console.log("Fetched audit logs:", data);
+
+        // Sort by latest login first
+        const sorted = data.data.sort((a, b) => b.ilast_loggedin - a.ilast_loggedin);
+
+        setAuditLogs({ data: sorted });
+
+        console.log("Sorted audit logs:", sorted);
       } catch (err) {
         console.error("Failed to fetch logs", err);
         setError(err.message || 'Something went wrong');
@@ -30,6 +35,7 @@ const AuditLoginTab = ({company_id}) => {
 
     fetchData();
   }, [company_id]);
+
 
   const totalLogs = auditLogs?.data || [];
   const paginatedLogs = totalLogs.slice(
@@ -87,7 +93,8 @@ const totalPages = Math.ceil(totalLogs.length / logsPerPage);
                 <TableRow key={index}>
                   <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{log.userName}</TableCell>
                   <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(log.ilast_loggedin).toLocaleString('en-IN', {
+                    
+                    {new Date(log.ilast_loggedin * 1000).toLocaleString('en-IN', {
                       year: 'numeric',
                       month: 'short',
                       day: '2-digit',
@@ -95,8 +102,9 @@ const totalPages = Math.ceil(totalLogs.length / logsPerPage);
                       minute: '2-digit',
                       second: '2-digit',
                       hour12: true,
-                      timeZone: 'Asia/Kolkata' 
+                      timeZone: 'Asia/Kolkata'
                     })}
+
                   </TableCell>
                   <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">143.110.178.254</TableCell>
                   <TableCell className="px-6 py-4 whitespace-nowrap">
