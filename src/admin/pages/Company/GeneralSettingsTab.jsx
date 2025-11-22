@@ -22,7 +22,7 @@ import EditIcon from '@mui/icons-material/Edit';
 
 import ToggleButton from '../../components/ToggleSwitch'
 import Collapsible from '../../components/Collipsable'
-import { useCompanyController , fetchAllCompanyData } from './companyController';
+import { useCompanyController  } from './companyController';
 
 // --- Constants & Utilities ---
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
