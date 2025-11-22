@@ -322,53 +322,35 @@ const Reseller = () => {
         {/* Info Cards Section */}
         <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card
-  title="Total Company"
-  count={dashboardData?.totalCompany}
-  icon="/icons/company_list.png"
-/>
+            title="Total Company"
+            count={dashboardData?.totalCompany}
+            icon="/icons/company_list.png"
+          />
 
-<Card
-  title="Total Reseller"
-  count={dashboardData?.totalReseller}
-  icon="/icons/reseller.png"   // or "/icons/reseller_image.jpg"
-/>
+          <Card
+            title="Total Reseller"
+            count={dashboardData?.totalReseller}
+            icon="/icons/reseller.png"   // or "/icons/reseller_image.jpg"
+          />
 
-<Card
-  title="Total Users"
-  count={
-    <>
-      {dashboardData?.totalUsers}
-      <div className="text-sm text-gray-600 mt-2 font-medium">
-        <span className="text-green-600">Active: {dashboardData?.activeUsers}</span>
-        <span className="ml-3 text-red-600">Inactive: {dashboardData?.inActiveUsers}</span>
-      </div>
-    </>
-  }
-  icon="/icons/crm_users.jpg"
-/>
+          <Card
+            title="Total Users"
+            count={
+              <>
+                {dashboardData?.totalUsers}
+                <div className="text-sm text-gray-600 mt-2 font-medium">
+                  <span className="text-green-600">Active: {dashboardData?.activeUsers}</span>
+                  <span className="ml-3 text-red-600">Inactive: {dashboardData?.inActiveUsers}</span>
+                </div>
+              </>
+            }
+            icon="/icons/crm_users.jpg"
+          />
 
-          {/* Note: Icon paths 'public/icons/...' should generally be '/icons/...' when deployed */}
         </div>
 
 
-        {/* Charts Section */}
-        <div className="mb-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Line Chart */}
-          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 min-h-[350px] flex flex-col">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Monthly Revenue Contribution</h2>
-            <div className="flex-grow relative"> {/* Make chart responsive to container height */}
-              <Line data={lineData} options={lineOptions} />
-            </div>
-          </div>
-
-          {/* Bar Chart */}
-          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 min-h-[350px] flex flex-col">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Top 5 Resellers by Revenue</h2>
-            <div className="flex-grow relative"> {/* Make chart responsive to container height */}
-              <Bar data={barData} options={barOptions} />
-            </div>
-          </div>
-        </div>
+         
 
 
         {/* Reseller List/Grid Display */}

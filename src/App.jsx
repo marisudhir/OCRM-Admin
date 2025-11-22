@@ -127,7 +127,7 @@ function App() {
               <Route path ="city" element={<CityMaster/>} />
               <Route path="history" element={<HistoryPage />} />
               <Route path="companylist" element={<CompanyList />} />
-               <Route path="duration" element={<DurationMaster />} />
+              <Route path="duration" element={<DurationMaster />} />
               <Route path="companypage" element={<CompanyPage />} />
               <Route path="analytics" element={<UserAnalyticsPage />} />
               <Route path="teamview" element={<TeamviewDashboard />} />
