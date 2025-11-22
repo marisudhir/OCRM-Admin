@@ -1,33 +1,57 @@
 import { ENDPOINTS } from '../../../api/ApiConstant';
 import * as ApiHelper from '../../../api/ApiHelper';
 
-// GET ALL LEAD LOST REASON BY COMPANY
+// GET ALL LEAD LOST REASONS (for company dropdown filtering)
+export async function getAllLeadLostReasons() {
+    const response = await ApiHelper.getAll(ENDPOINTS.COMPANY_LEAD_LOST_REASON);
+    return response.data;
+}
+
+// GET LEAD LOST REASONS BY COMPANY ID - FIXED
 export async function getLeadLostReasonsByCompanyId(companyId) {
+    // If no company ID provided, get all reasons
+    if (!companyId) {
+        const response = await ApiHelper.getById(ENDPOINTS.CREATE_LEAD_LOST_REASON);
+        return response.data;
+    }
+    
+    // If company ID provided, get reasons for that specific company
     const response = await ApiHelper.getById(companyId, ENDPOINTS.COMPANY_LEAD_LOST_REASON);
     return response.data;
 }
 
-// CREATE
+// CREATE LEAD LOST REASON
 export async function createLeadLostReason(reqData) {
     const response = await ApiHelper.create(reqData, ENDPOINTS.CREATE_LEAD_LOST_REASON);
     return response.data;
 }
 
-// UPDATE
+// UPDATE LEAD LOST REASON - IMPROVED
 export async function updateLeadLostReason(id, reqData) {
+    console.log("Update request - ID:", id, "Data:", reqData);
 
-    // reqData might be an array-like object → convert to string safely
-    const reasonText =
-        typeof reqData === "string"
-            ? reqData
-            : reqData?.reason || Object.values(reqData).join("");
+    let reasonText;
+    let companyId;
+    
+    if (typeof reqData === "string") {
+        reasonText = reqData;
+    } else if (typeof reqData === "object") {
+        reasonText = reqData.lostReason || reqData.reason || reqData.lostReasonText || 
+                    Object.values(reqData).find(val => typeof val === "string");
+        companyId = reqData.icompany_id;
+    } else {
+        reasonText = String(reqData);
+    }
 
     const payload = {
-        lostReasonId: id,
+        lostReasonId: Number(id),
         lostReason: reasonText,
+        icompany_id: companyId
     };
 
-    const response = await ApiHelper.editWithReqBody(
+    console.log("Final update payload:", payload);
+
+    const response = await ApiHelper.updateHelper(
         ENDPOINTS.LEAD_LOST_REASON,
         payload
     );
@@ -35,13 +59,14 @@ export async function updateLeadLostReason(id, reqData) {
     return response.data;
 }
 
-
-//DELETE 
+// DELETE LEAD LOST REASON
 export async function deleteLeadLostReason(id) {
     const params = {
-        lostReasonId: id,
+        lostReasonId: Number(id),
         isActive: false
     };
+
+    console.log("Delete params:", params);
 
     const response = await ApiHelper.deleteWithQueryParams(
         ENDPOINTS.LEAD_LOST_REASON,
@@ -50,5 +75,3 @@ export async function deleteLeadLostReason(id) {
 
     return response.data;
 }
-
-

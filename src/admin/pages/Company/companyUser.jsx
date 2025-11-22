@@ -161,12 +161,12 @@ useEffect(() => {
                 onClick={() => setActiveSection("Allowed Attributes")}
               />
               
-              <SidebarItem
+              {/* <SidebarItem
                 icon={<CreditCard />}
                 text="User Settings"
                 active={activeSection === "User Settings"}
                 onClick={() => setActiveSection("User Settings")}
-              />
+              /> */}
             </nav>
           </div>
         </aside>

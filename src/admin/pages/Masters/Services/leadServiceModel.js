@@ -22,20 +22,35 @@ export const updateLeadService = async (serviceId, data) => {
   console.log('Updating service with ID:', serviceId);
   console.log('Update data:', data);
   
-  // Clean the serviceId to ensure it's a proper number/string
-  const cleanServiceId = String(serviceId).replace(/[^0-9]/g, '');
-  console.log('Cleaned service ID:', cleanServiceId);
+  const id = Number(serviceId);
+  if (isNaN(id) || id <= 0) {
+    throw new Error(`Invalid service ID: ${serviceId}`);
+  }
   
-  return await ApiHelper.update(cleanServiceId, ENDPOINTS.LEAD_SERVICE, data);
+  // Create the payload that matches your backend expectation
+  const updatePayload = {
+    serviceId: id, // This goes in request body
+    serviceName: data.serviceName || data.cservice_name,
+    updatedBy: data.updated_by // Make sure this matches your backend field name
+  };
+  
+  console.log('Update payload:', updatePayload);
+  
+  // Use editWithReqBody since serviceId is in request body
+  return await ApiHelper.editWithReqBody(ENDPOINTS.LEAD_SERVICE, updatePayload);
 };
 
 // to delete (soft delete) a lead service
 export const deleteLeadService = async (serviceId) => {
   console.log('Deleting service with ID:', serviceId);
   
-  // Clean the serviceId to ensure it's a proper number/string
-  const cleanServiceId = String(serviceId).replace(/[^0-9]/g, '');
-  console.log('Cleaned service ID:', cleanServiceId);
+  const id = Number(serviceId);
+  if (isNaN(id) || id <= 0) {
+    throw new Error(`Invalid service ID: ${serviceId}`);
+  }
   
-  return await ApiHelper.deactive(cleanServiceId, ENDPOINTS.LEAD_SERVICE);
+  console.log('Delete endpoint with query params:', ENDPOINTS.LEAD_SERVICE);
+  
+  // Use deleteWithQueryParams with serviceId as query parameter
+  return await ApiHelper.deleteWithQueryParams(ENDPOINTS.LEAD_SERVICE, { serviceId: id });
 };

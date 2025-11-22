@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useServices } from './useServices';
 import ServiceForm from './Sub-Components/ServiceForm';
-import { useToast } from '../../../context/ToastContext';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Make sure to import the CSS
 
 const LeadServices = ({ company = {} }) => {
   const { 
@@ -14,7 +15,7 @@ const LeadServices = ({ company = {} }) => {
     error 
   } = useServices();
   
-  const { showToast } = useToast();
+  // Remove the useToast hook and use toast directly
   console.log("Service array : ", leadServices);
   
   const [selectedCompany, setSelectedCompany] = useState(company?.iCompany_id);
@@ -44,24 +45,34 @@ const LeadServices = ({ company = {} }) => {
   }, [selectedCompany, leadServices.length]);
 
   // Handle edit service
-  const handleEdit = (service) => {
-    setEditingService(service);
-    setShowForm(true);
-  };
+const handleEdit = (service) => {
+  setEditingService(service);
+  setShowForm(true);
+};
+  // Handle delete service - using toast directly
+const handleDelete = async (service) => {
+  if (!window.confirm(`Are you sure you want to delete "${service.serviceName}"?`)) {
+    return;
+  }
 
-  // Handle delete service
-  const handleDelete = async (service) => {
-    if (!window.confirm(`Are you sure you want to delete "${service.serviceName}"?`)) {
-      return;
-    }
+  // Use serviceId (from your API response)
+  const serviceId = service.serviceId;
+  
+  if (!serviceId) {
+    toast.error("Service ID not found!");
+    console.error('Service ID not found in:', service);
+    return;
+  }
 
-    const success = await deleteLeadService(service.iservice_id);
-    if (success) {
-      showToast("success", "Lead service deleted successfully!");
-    } else {
-      showToast("error", "Failed to delete lead service!");
-    }
-  };
+  console.log('Deleting service with ID:', serviceId);
+  
+  const success = await deleteLeadService(serviceId);
+  if (success) {
+    toast.success("Lead service deleted successfully!");
+  } else {
+    toast.error("Failed to delete lead service!");
+  }
+};
 
   // Handle form success (both create and update)
   const handleFormSuccess = () => {

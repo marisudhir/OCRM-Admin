@@ -312,9 +312,32 @@ const Reseller = () => {
 
         {/* Info Cards Section */}
         <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card count={resellerData.filter(r => r.bactive).length} title={"Active Resellers"} iconUrl={'/icons/reseller.svg'} /> {/* Corrected path */}
-          <Card count={resellerData.filter(r => !r.bactive).length} title={"Inactive Resellers"} iconUrl={'/icons/pending.svg'} /> {/* Corrected path, assuming 'pending' icon for inactive */}
-          <Card count={resellerData.length} title={"Total Resellers"} iconUrl={'/icons/suspended.svg'} /> {/* Corrected path, assuming 'suspended' icon for total */}
+          <Card
+  title="Total Company"
+  count={dashboardData?.totalCompany}
+  icon="/icons/company_list.png"
+/>
+
+<Card
+  title="Total Reseller"
+  count={dashboardData?.totalReseller}
+  icon="/icons/reseller.png"   // or "/icons/reseller_image.jpg"
+/>
+
+<Card
+  title="Total Users"
+  count={
+    <>
+      {dashboardData?.totalUsers}
+      <div className="text-sm text-gray-600 mt-2 font-medium">
+        <span className="text-green-600">Active: {dashboardData?.activeUsers}</span>
+        <span className="ml-3 text-red-600">Inactive: {dashboardData?.inActiveUsers}</span>
+      </div>
+    </>
+  }
+  icon="/icons/crm_users.jpg"
+/>
+
           {/* Note: Icon paths 'public/icons/...' should generally be '/icons/...' when deployed */}
         </div>
 

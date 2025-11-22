@@ -167,7 +167,7 @@ const MasterDataPanel = ({ companyData }) => {
       id: 10,
       title: "Time Duration",
       description: "Paln Duartion ",
-      icon: "/icons/industrial-park.svg",
+      icon: "/icons/hourglass.svg",
       component: "duration",
     },
     {
@@ -181,7 +181,7 @@ const MasterDataPanel = ({ companyData }) => {
       id: 12,
       title: "Lead Lost Reason",
       description: "Lead lost resaon is for adding the lost reason of the lead ",
-      icon: "/icons/industrial-park.svg",
+      icon: "/icons/lost.svg",
       component: "lead-lost-reason",
     },
   ];

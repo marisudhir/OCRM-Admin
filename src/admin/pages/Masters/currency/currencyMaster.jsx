@@ -60,13 +60,17 @@ console.log("currency: ",rawCurrencies)
   }, [fetchCurrencies]);
 
 
-  const filteredCurrencies = Array.isArray(rawCurrencies)
-    ? rawCurrencies.filter(currency =>
-        currency.currency_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        currency.currency_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        currency.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : [];
+const filteredCurrencies = Array.isArray(rawCurrencies)
+  ? rawCurrencies.filter(currency => 
+      currency?.bactive === true && 
+      (!searchQuery.trim() || 
+        currency.currency_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        currency.currency_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        currency.symbol?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        currency.country_name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    )
+  : [];
 
 
   const handleEdit = (currency) => {
